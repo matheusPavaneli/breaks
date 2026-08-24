@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { parseIso8601Duration } from '../duration.ts';
 import { policySchema, type PolicyInput } from '../policy.ts';
 
 function validPolicy(): PolicyInput {
@@ -12,11 +13,25 @@ function validPolicy(): PolicyInput {
   };
 }
 
-test('the policy from SPEC.md parses, with its windows resolved to seconds', () => {
+test('the policy from SPEC.md parses', () => {
   const parsed = policySchema.parse(validPolicy());
-  assert.deepEqual(parsed.time_window.before, { iso: 'PT0S', seconds: 0 });
-  assert.deepEqual(parsed.time_window.after, { iso: 'P3D', seconds: 259200 });
+  assert.equal(parsed.time_window.before, 'PT0S');
+  assert.equal(parsed.time_window.after, 'P3D');
   assert.equal(parsed.amount_tolerance.absolute_minor_units, 2);
+});
+
+test('a parsed policy serialises back to the bytes it arrived as', () => {
+  // The runner hands the policy on to the implementation as JSON (SPEC.md section 5), so the
+  // output of the schema has to be valid input to it.
+  const wire = JSON.stringify(validPolicy());
+  const roundTripped = JSON.stringify(policySchema.parse(JSON.parse(wire)));
+  assert.equal(roundTripped, wire);
+  assert.equal(policySchema.safeParse(JSON.parse(roundTripped)).success, true);
+});
+
+test('the window is available in seconds through the parser', () => {
+  const parsed = policySchema.parse(validPolicy());
+  assert.equal(parseIso8601Duration(parsed.time_window.after), 259200);
 });
 
 test('a negative or fractional tolerance is rejected', () => {

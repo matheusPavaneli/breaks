@@ -44,8 +44,9 @@ test('a total beyond the safe integer range is rejected', () => {
   assert.throws(() => parseIso8601Duration('P999999999999999W'), InvalidDurationError);
 });
 
-test('the schema keeps the original string alongside the seconds', () => {
-  assert.deepEqual(durationSchema.parse('P3D'), { iso: 'P3D', seconds: 259200 });
+test('the schema validates without converting, so a policy round-trips byte-identical', () => {
+  assert.equal(durationSchema.parse('P3D'), 'P3D');
+  assert.equal(durationSchema.parse('PT0S'), 'PT0S');
 });
 
 test('the schema reports the parser message and keeps the cause', () => {

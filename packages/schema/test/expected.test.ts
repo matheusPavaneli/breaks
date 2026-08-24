@@ -6,6 +6,7 @@ import {
   ambiguousSchema,
   expectedSchema,
   matchSchema,
+  submissionSchema,
   unmatchedSchema,
   type ExpectedInput,
 } from '../expected.ts';
@@ -127,4 +128,76 @@ test('an unknown key anywhere in expected.json is rejected', () => {
     false,
   );
   assert.equal(matchSchema.safeParse({ ...validMatch(), confidence: 0.9 }).success, false);
+});
+
+test('a repeated id in a match is rejected: a list of ids is a set', () => {
+  assert.equal(matchSchema.safeParse({ ...validMatch(), a: ['ch_1', 'ch_1'] }).success, false);
+  assert.equal(matchSchema.safeParse({ ...validMatch(), b: ['bt_1', 'bt_1'] }).success, false);
+  assert.equal(
+    matchSchema.safeParse({ ...validMatch(), a: ['ch_1', 'ch_2'], rule: 'group_sum' }).success,
+    true,
+  );
+});
+
+test('padding candidates_b with a repeat does not buy a second candidate', () => {
+  const padded = {
+    a: ['ch_3'],
+    candidates_b: ['bt_7', 'bt_7'],
+    reason: 'identical_amount_same_minute' as const,
+  };
+  assert.equal(ambiguousSchema.safeParse(padded).success, false);
+});
+
+test('two records contending for one counterpart is a valid ambiguity', () => {
+  // Case E1 read from the other side: two charges, one bank record. A shape that only
+  // allowed one A against several B could not express it.
+  const twoAgainstOne = {
+    a: ['ch_1', 'ch_2'],
+    candidates_b: ['bt_1'],
+    reason: 'identical_amount_same_minute' as const,
+  };
+  assert.equal(ambiguousSchema.safeParse(twoAgainstOne).success, true);
+});
+
+test('one against one is not an ambiguity', () => {
+  const result = ambiguousSchema.safeParse({
+    a: ['ch_3'],
+    candidates_b: ['bt_7'],
+    reason: 'identical_amount_same_minute',
+  });
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /at least two contenders/);
+});
+
+test('the submission shape ignores an unknown key the corpus shape rejects', () => {
+  const output = {
+    matches: [{ ...validMatch(), confidence: 0.9 }],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [],
+    engine_version: '1.2.3',
+  };
+  assert.equal(expectedSchema.safeParse(output).success, false);
+
+  const parsed = submissionSchema.parse(output);
+  assert.equal(Object.hasOwn(parsed, 'engine_version'), false);
+  assert.equal(Object.hasOwn(parsed.matches[0] ?? {}, 'confidence'), false);
+});
+
+test('the submission shape still enforces every invariant that carries meaning', () => {
+  const noJustification = {
+    matches: [{ a: ['ch_1'], b: ['bt_1'], rule: 'reference', residual: zeroUsd }],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  assert.equal(submissionSchema.safeParse(noJustification).success, false);
+
+  const badReason = {
+    matches: [],
+    unmatched_a: [{ id: 'ch_2', reason: 'dunno' }],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  assert.equal(submissionSchema.safeParse(badReason).success, false);
 });

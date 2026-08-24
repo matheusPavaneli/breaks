@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { refSchema, settlementRecordSchema, type SettlementRecordInput } from '../record.ts';
+import {
+  refSchema,
+  settlementRecordListSchema,
+  settlementRecordSchema,
+  type SettlementRecordInput,
+} from '../record.ts';
 
 function validRecord(): SettlementRecordInput {
   return {
@@ -106,4 +111,27 @@ test('an fx leg on the record is validated as a whole', () => {
     fx: { ...withFx.fx, settlement: { amount: 1080, currency: 'GBP', exponent: 2 } },
   };
   assert.equal(settlementRecordSchema.safeParse(brokenFx).success, false);
+});
+
+test('a __proto__ key in metadata is rejected rather than silently dropped', () => {
+  // JSON.parse produces it as an own property; z.record would drop it on the floor, so an
+  // implementation reading the file with a raw JSON.parse would see a key the engine cannot.
+  const metadata: unknown = JSON.parse('{"__proto__":{"polluted":1}}');
+  const result = settlementRecordSchema.safeParse({ ...validRecord(), metadata });
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /__proto__/);
+  assert.equal(({} as Record<string, unknown>)['polluted'], undefined);
+});
+
+test('two records sharing an id on one side are rejected', () => {
+  const first = validRecord();
+  const second = { ...validRecord(), occurred_at: '2026-01-31T23:59:00-03:00' };
+  const result = settlementRecordListSchema.safeParse([first, second]);
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /duplicate record id/);
+
+  assert.equal(
+    settlementRecordListSchema.safeParse([first, { ...second, id: 'ch_2' }]).success,
+    true,
+  );
 });

@@ -79,21 +79,22 @@ export function parseIso8601Duration(input: string): number {
   return total;
 }
 
-export type Duration = {
-  /** The literal string from the case file, kept so the policy round-trips byte-identical. */
-  readonly iso: string;
-  readonly seconds: number;
-};
-
-export const durationSchema = z.string().transform((value, ctx): Duration => {
+/**
+ * A duration validated but left exactly as it was written.
+ *
+ * The schema does not convert: the runner hands the policy on to the implementation as JSON
+ * (SPEC.md section 5), so a parsed policy has to serialise back to the bytes it arrived as.
+ * A schema returning `{ iso, seconds }` would make the output of `runnerInputSchema` invalid
+ * as its own input. Seconds come from `parseIso8601Duration` at the point of use.
+ */
+export const durationSchema = z.string().superRefine((value, ctx) => {
   try {
-    return { iso: value, seconds: parseIso8601Duration(value) };
+    parseIso8601Duration(value);
   } catch (cause) {
     ctx.addIssue({
       code: 'custom',
       message: cause instanceof Error ? cause.message : String(cause),
       params: { cause },
     });
-    return z.NEVER;
   }
 });

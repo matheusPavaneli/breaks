@@ -13,6 +13,7 @@ import { moneySchema } from './money.ts';
 // entry, not an edit made to let one case through.
 
 const idSchema = z.string().min(1);
+const idListSchema = z.array(idSchema).min(1);
 
 export const ruleSchema = z.enum([
   /** A shared reference identifies the pair outright. */
@@ -79,35 +80,99 @@ export const ambiguousReasonSchema = z.enum([
   'out_of_order_events',
 ]);
 
-export const matchSchema = z.strictObject({
-  a: z.array(idSchema).min(1),
-  b: z.array(idSchema).min(1),
+// A list of ids is a set written as an array. Counting entries instead of distinct ids would
+// let a repeat stand in for a second record: "candidates_b": ["bt_7", "bt_7"] would clear a
+// minimum of two while naming one candidate, turning a false abstain into a scored one.
+function requireDistinct(ids: readonly string[], field: string, ctx: z.RefinementCtx): void {
+  const seen = new Set<string>();
+  ids.forEach((id, index) => {
+    if (seen.has(id)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [field, index],
+        message: `duplicate id ${JSON.stringify(id)} in ${field}`,
+      });
+      return;
+    }
+    seen.add(id);
+  });
+}
+
+const matchShape = {
+  a: idListSchema,
+  b: idListSchema,
   rule: ruleSchema,
   // What the rule actually read. An empty list is a match with no stated basis.
   fields_used: z.array(z.string().min(1)).min(1),
   // Money, not a bare number: a residual without a currency is the kind of amount this
   // project exists to make impossible. Zero residual is money(0, currency).
   residual: moneySchema,
-});
+};
 
-export const unmatchedSchema = z.strictObject({
+function checkMatch(match: { a: readonly string[]; b: readonly string[] }, ctx: z.RefinementCtx) {
+  requireDistinct(match.a, 'a', ctx);
+  requireDistinct(match.b, 'b', ctx);
+}
+
+const unmatchedShape = {
   id: idSchema,
   reason: unmatchedReasonSchema,
-});
+};
 
-export const ambiguousSchema = z.strictObject({
-  a: z.array(idSchema).min(1),
-  // Fewer than two candidates is not an ambiguity: with one candidate the answer is a
-  // match or an unmatched record, and abstaining there is a false abstain.
-  candidates_b: z.array(idSchema).min(2),
+const ambiguousShape = {
+  // Both sides are lists, and either one may hold the contenders. Case E1 - two charges
+  // contending for one bank record - is a two-against-one abstention, and a shape that only
+  // allowed one A against several B would have no way to write it down.
+  a: idListSchema,
+  candidates_b: idListSchema,
   reason: ambiguousReasonSchema,
-});
+};
+
+function checkAmbiguous(
+  ambiguous: { a: readonly string[]; candidates_b: readonly string[] },
+  ctx: z.RefinementCtx,
+) {
+  requireDistinct(ambiguous.a, 'a', ctx);
+  requireDistinct(ambiguous.candidates_b, 'candidates_b', ctx);
+
+  // One against one is not an ambiguity: there the answer is a match or an unmatched record,
+  // and abstaining is a false abstain, which the score punishes.
+  if (ambiguous.a.length + ambiguous.candidates_b.length < 3) {
+    ctx.addIssue({
+      code: 'custom',
+      message:
+        'an ambiguity needs at least two contenders on one side; one against one is a match or an unmatched record',
+    });
+  }
+}
+
+// The corpus side. Strict everywhere: a key nobody reads is how ground truth quietly stops
+// meaning what its README says.
+export const matchSchema = z.strictObject(matchShape).superRefine(checkMatch);
+export const unmatchedSchema = z.strictObject(unmatchedShape);
+export const ambiguousSchema = z.strictObject(ambiguousShape).superRefine(checkAmbiguous);
 
 export const expectedSchema = z.strictObject({
   matches: z.array(matchSchema),
   unmatched_a: z.array(unmatchedSchema),
   unmatched_b: z.array(unmatchedSchema),
   ambiguous: z.array(ambiguousSchema),
+});
+
+// The submission side. Same shapes - one definition, instantiated twice, so the two cannot
+// drift where the comparison lives - but an unknown key is ignored rather than fatal. A
+// third-party implementation stamping a "confidence" or a version on its output should not
+// score zero for the case over a field the runner does not read; z.object drops it, so what
+// reaches the comparison is still exactly the corpus shape.
+export const submissionMatchSchema = z.object(matchShape).superRefine(checkMatch);
+export const submissionUnmatchedSchema = z.object(unmatchedShape);
+export const submissionAmbiguousSchema = z.object(ambiguousShape).superRefine(checkAmbiguous);
+
+export const submissionSchema = z.object({
+  matches: z.array(submissionMatchSchema),
+  unmatched_a: z.array(submissionUnmatchedSchema),
+  unmatched_b: z.array(submissionUnmatchedSchema),
+  ambiguous: z.array(submissionAmbiguousSchema),
 });
 
 export type Rule = z.output<typeof ruleSchema>;
@@ -118,3 +183,4 @@ export type Unmatched = z.output<typeof unmatchedSchema>;
 export type Ambiguous = z.output<typeof ambiguousSchema>;
 export type Expected = z.output<typeof expectedSchema>;
 export type ExpectedInput = z.input<typeof expectedSchema>;
+export type Submission = z.output<typeof submissionSchema>;

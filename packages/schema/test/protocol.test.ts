@@ -42,7 +42,7 @@ function validInput(): RunnerInputPayload {
 test('a well-formed request parses, policy included', () => {
   const parsed = runnerInputSchema.parse(validInput());
   assert.equal(parsed.case_id, 'timing/charge-crosses-month-boundary');
-  assert.equal(parsed.policy.time_window.after.seconds, 259200);
+  assert.equal(parsed.policy.time_window.after, 'P3D');
   assert.equal(parsed.records_a[0]?.gross.amount, 10000);
 });
 
@@ -79,6 +79,32 @@ test('a malformed record inside the request fails the whole request', () => {
   );
 });
 
+test('duplicate record ids on one side are rejected: an id has to name one record', () => {
+  const input = validInput();
+  const record = input.records_a[0];
+  assert.ok(record !== undefined);
+  const result = runnerInputSchema.safeParse({ ...input, records_a: [record, { ...record }] });
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /duplicate record id/);
+});
+
+test('the same id on opposite sides is fine: that is what a match is', () => {
+  const input = validInput();
+  const record = input.records_a[0];
+  assert.ok(record !== undefined);
+  assert.equal(
+    runnerInputSchema.safeParse({ ...input, records_b: [{ ...record, source: 'bank' }] }).success,
+    true,
+  );
+});
+
+test('a request round-trips through JSON unchanged', () => {
+  // SPEC.md section 5: the runner writes this message to the implementation's stdin, so the
+  // parsed request has to serialise back to what it parsed.
+  const wire = JSON.stringify(validInput());
+  assert.equal(JSON.stringify(runnerInputSchema.parse(JSON.parse(wire))), wire);
+});
+
 test('the output is the same shape expected.json is held to', () => {
   const output = {
     matches: [
@@ -96,6 +122,8 @@ test('the output is the same shape expected.json is held to', () => {
   };
   assert.equal(runnerOutputSchema.safeParse(output).success, true);
   assert.equal(expectedSchema.safeParse(output).success, true);
+  // An extra key on a third-party submission costs the case nothing; it is dropped.
+  assert.equal(runnerOutputSchema.safeParse({ ...output, engine: 'acme 1.0' }).success, true);
 
   const noJustification = {
     ...output,
