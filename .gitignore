@@ -1,0 +1,73 @@
+# Allowlist. Tudo e ignorado por padrao; so entra o que for liberado abaixo.
+# Regra do git: o ultimo padrao que casa vence — a ordem das secoes importa.
+
+# 1. nega tudo
+*
+
+# 2. mas desce nos diretorios (sem isto o git nao enxerga nada aninhado)
+!*/
+
+# 3. diretorios em que o git nunca deve descer.
+#    Precisa vir depois de `!*/`. Diretorio excluido nao pode ser reincluido
+#    por padrao nenhum abaixo — e o que impede vazamento via `**`.
+node_modules/
+dist/
+build/
+coverage/
+.nyc_output/
+.pnpm-store/
+.workflow/
+.vscode/
+.idea/
+
+# 4. raiz
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/CHANGELOG.md
+!/LICENSE
+!/package.json
+!/pnpm-workspace.yaml
+!/pnpm-lock.yaml
+!/tsconfig.json
+!/tsconfig.base.json
+
+# 5. CI
+!/.github/**/*.yml
+
+# 6. codigo
+!/packages/**/*.ts
+!/packages/**/package.json
+!/packages/**/tsconfig.json
+!/packages/**/README.md
+
+# 7. adaptadores — fixtures gravados entram, nada de live
+!/adapters/**/*.ts
+!/adapters/**/package.json
+!/adapters/**/tsconfig.json
+!/adapters/**/README.md
+!/adapters/**/fixtures/**/*.json
+
+# 8. corpus — so os cinco arquivos que definem um caso
+!/corpus/VERSION
+!/corpus/LICENSE
+!/corpus/**/input_a.json
+!/corpus/**/input_b.json
+!/corpus/**/policy.json
+!/corpus/**/expected.json
+!/corpus/**/README.md
+
+# 9. site estatico
+!/site/**/*.html
+!/site/**/*.css
+!/site/**/*.ts
+!/site/**/*.json
+
+# 10. segredos — por ultimo, vence qualquer liberacao acima
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
