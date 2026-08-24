@@ -98,11 +98,24 @@ test('the same id on opposite sides is fine: that is what a match is', () => {
   );
 });
 
-test('a request round-trips through JSON unchanged', () => {
-  // SPEC.md section 5: the runner writes this message to the implementation's stdin, so the
-  // parsed request has to serialise back to what it parsed.
-  const wire = JSON.stringify(validInput());
-  assert.equal(JSON.stringify(runnerInputSchema.parse(JSON.parse(wire))), wire);
+test('a request round-trips through JSON with every value intact', () => {
+  // SPEC.md section 5: the runner writes this message to the implementation's stdin, so what
+  // the schema produces has to serialise back into a valid request. Key order is normalised
+  // by zod, which rebuilds objects in shape order - so this asserts the values, and uses a
+  // fixture whose keys are deliberately in a different order from the schema's.
+  const payload = JSON.parse(JSON.stringify(validInput())) as Record<string, unknown>;
+  const shuffled = {
+    records_b: payload['records_b'],
+    policy: payload['policy'],
+    records_a: payload['records_a'],
+    case_id: payload['case_id'],
+  };
+
+  const parsed = runnerInputSchema.parse(shuffled);
+  const roundTripped: unknown = JSON.parse(JSON.stringify(parsed));
+
+  assert.deepEqual(roundTripped, payload);
+  assert.equal(runnerInputSchema.safeParse(roundTripped).success, true);
 });
 
 test('the output is the same shape expected.json is held to', () => {

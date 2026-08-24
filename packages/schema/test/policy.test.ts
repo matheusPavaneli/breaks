@@ -20,12 +20,20 @@ test('the policy from SPEC.md parses', () => {
   assert.equal(parsed.amount_tolerance.absolute_minor_units, 2);
 });
 
-test('a parsed policy serialises back to the bytes it arrived as', () => {
+test('a parsed policy serialises back to something the schema accepts, values intact', () => {
   // The runner hands the policy on to the implementation as JSON (SPEC.md section 5), so the
-  // output of the schema has to be valid input to it.
-  const wire = JSON.stringify(validPolicy());
+  // output of the schema has to be valid input to it. zod rebuilds objects in the order the
+  // shape declares, so the key order is normalised - the values are what has to survive, and
+  // the fixture below is deliberately written in a different order from the schema.
+  const wire = JSON.stringify({
+    fx: { round_after_conversion: true },
+    rounding: 'half_even',
+    time_window: { after: 'P3D', before: 'PT0S' },
+    amount_tolerance: { basis_points: 0, absolute_minor_units: 2 },
+  });
   const roundTripped = JSON.stringify(policySchema.parse(JSON.parse(wire)));
-  assert.equal(roundTripped, wire);
+
+  assert.deepEqual(JSON.parse(roundTripped), JSON.parse(wire));
   assert.equal(policySchema.safeParse(JSON.parse(roundTripped)).success, true);
 });
 

@@ -18,13 +18,16 @@ function reject(ctx: z.RefinementCtx, message: string, cause: unknown): never {
   return z.NEVER;
 }
 
-const moneyShape = z.strictObject({
+const moneyFields = {
   amount: z.int(),
   currency: z.string(),
   exponent: z.union([z.literal(0), z.literal(2), z.literal(3)]),
-});
+};
 
-export const moneySchema = moneyShape.transform((value, ctx): Money => {
+function toMoney(
+  value: { amount: number; currency: string; exponent: 0 | 2 | 3 },
+  ctx: z.RefinementCtx,
+): Money {
   if (!isSupportedCurrency(value.currency)) {
     ctx.addIssue({
       code: 'custom',
@@ -50,7 +53,15 @@ export const moneySchema = moneyShape.transform((value, ctx): Money => {
   } catch (cause) {
     return reject(ctx, `rejected by @breaks/money: ${String(cause)}`, cause);
   }
-});
+}
+
+export const moneySchema = z.strictObject(moneyFields).transform(toMoney);
+
+// The same fields with an unknown key ignored instead of fatal. A third-party implementation
+// that decorates its residual with a formatted string or a provider tag should not score zero
+// for the case over a field the runner never reads; what survives parsing is a Money either
+// way, so the comparison sees exactly the same value.
+export const submissionMoneySchema = z.object(moneyFields).transform(toMoney);
 
 const fxRateShape = z.strictObject({
   num: z.int(),

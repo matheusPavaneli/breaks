@@ -7,8 +7,12 @@ import { z } from 'zod';
 //
 // Fractional components are rejected for the other invariant: "PT0.5S" would have to
 // become a float somewhere, and no float is allowed in the engine's inputs.
+//
+// The week designator is rejected too, for a reason that has nothing to do with arithmetic:
+// this string crosses a process boundary into implementations in other languages, and
+// java.time.Duration.parse refuses "W" outright. "P7D" says the same thing everywhere. ISO
+// 8601 also makes the week form exclusive, which "P1W1D" would violate.
 
-const SECONDS_PER_WEEK = 604800;
 const SECONDS_PER_DAY = 86400;
 const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_MINUTE = 60;
@@ -17,8 +21,7 @@ const SECONDS_PER_MINUTE = 60;
 // reaching the parser. 64 characters is far past any window a real policy declares.
 const MAX_LENGTH = 64;
 
-const PATTERN =
-  /^P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/;
+const PATTERN = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/;
 
 export class InvalidDurationError extends Error {
   readonly input: string;
@@ -38,7 +41,7 @@ function componentSeconds(raw: string | undefined, multiplier: number): number {
 /**
  * Parse an ISO 8601 duration into whole seconds.
  *
- * Accepts weeks, days, hours, minutes and seconds. Rejects years, months, fractional
+ * Accepts days, hours, minutes and seconds. Rejects years, months, weeks, fractional
  * components, a sign, and a duration with no component at all ("P", "PT", "P1DT").
  */
 export function parseIso8601Duration(input: string): number {
@@ -50,13 +53,13 @@ export function parseIso8601Duration(input: string): number {
   if (match === null) {
     throw new InvalidDurationError(
       input,
-      'only P[nW][nD][T[nH][nM][nS]] is accepted; years, months, fractions and signs are not',
+      'only P[nD][T[nH][nM][nS]] is accepted; years, months, weeks, fractions and signs are not',
     );
   }
 
-  const [, weeks, days, hours, minutes, seconds] = match;
+  const [, days, hours, minutes, seconds] = match;
   const hasTimePart = hours !== undefined || minutes !== undefined || seconds !== undefined;
-  if (weeks === undefined && days === undefined && !hasTimePart) {
+  if (days === undefined && !hasTimePart) {
     throw new InvalidDurationError(input, 'no component; a duration needs at least one');
   }
   // "P1DT" matches the pattern but is not a duration: the time designator has to be
@@ -66,7 +69,6 @@ export function parseIso8601Duration(input: string): number {
   }
 
   const total =
-    componentSeconds(weeks, SECONDS_PER_WEEK) +
     componentSeconds(days, SECONDS_PER_DAY) +
     componentSeconds(hours, SECONDS_PER_HOUR) +
     componentSeconds(minutes, SECONDS_PER_MINUTE) +

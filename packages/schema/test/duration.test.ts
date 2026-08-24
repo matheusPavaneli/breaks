@@ -7,8 +7,7 @@ test('the fixed-length designators parse into whole seconds', () => {
   assert.equal(parseIso8601Duration('PT0S'), 0);
   assert.equal(parseIso8601Duration('P3D'), 259200);
   assert.equal(parseIso8601Duration('PT1H30M'), 5400);
-  assert.equal(parseIso8601Duration('P1W'), 604800);
-  assert.equal(parseIso8601Duration('P1WT12H'), 604800 + 43200);
+  assert.equal(parseIso8601Duration('P7D'), 604800);
   assert.equal(parseIso8601Duration('P1DT2H3M4S'), 86400 + 7200 + 180 + 4);
 });
 
@@ -40,8 +39,15 @@ test('input longer than the bound is rejected before parsing', () => {
   assert.throws(() => parseIso8601Duration(`PT${'9'.repeat(70)}S`), InvalidDurationError);
 });
 
+test('the week designator is rejected: it does not cross the process boundary', () => {
+  // java.time.Duration.parse refuses "W", and ISO 8601 makes the week form exclusive anyway.
+  // "P7D" says the same thing in every language a submission might be written in.
+  assert.throws(() => parseIso8601Duration('P1W'), InvalidDurationError);
+  assert.throws(() => parseIso8601Duration('P1W1D'), InvalidDurationError);
+});
+
 test('a total beyond the safe integer range is rejected', () => {
-  assert.throws(() => parseIso8601Duration('P999999999999999W'), InvalidDurationError);
+  assert.throws(() => parseIso8601Duration('P999999999999999D'), InvalidDurationError);
 });
 
 test('the schema validates without converting, so a policy round-trips byte-identical', () => {

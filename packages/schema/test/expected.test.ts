@@ -201,3 +201,99 @@ test('the submission shape still enforces every invariant that carries meaning',
   };
   assert.equal(submissionSchema.safeParse(badReason).success, false);
 });
+
+test('an id cannot be matched twice or matched and unmatched at once', () => {
+  const doubleMatched = {
+    matches: [validMatch(), { ...validMatch(), b: ['bt_2'] }],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  const result = expectedSchema.safeParse(doubleMatched);
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /resolved more than once/);
+
+  const matchedAndUnmatched = {
+    matches: [validMatch()],
+    unmatched_a: [{ id: 'ch_1', reason: 'not_yet_settled' as const }],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  assert.equal(expectedSchema.safeParse(matchedAndUnmatched).success, false);
+});
+
+test('an id cannot be resolved and ambiguous at the same time', () => {
+  const both = {
+    matches: [validMatch()],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [
+      {
+        a: ['ch_1'],
+        candidates_b: ['bt_7', 'bt_8'],
+        reason: 'identical_amount_same_minute' as const,
+      },
+    ],
+  };
+  const result = expectedSchema.safeParse(both);
+  assert.equal(result.success, false);
+  assert.match(result.error.issues[0]?.message ?? '', /both resolved and listed as ambiguous/);
+});
+
+test('a candidate may appear in more than one ambiguity', () => {
+  // Two charges each contending with bt_2, against different other candidates. Nothing is
+  // resolved here, so there is no double count to prevent.
+  const shared = {
+    matches: [],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [
+      { a: ['ch_1'], candidates_b: ['bt_1', 'bt_2'], reason: 'fx_rounding_tie' as const },
+      { a: ['ch_2'], candidates_b: ['bt_2', 'bt_3'], reason: 'fx_rounding_tie' as const },
+    ],
+  };
+  assert.equal(expectedSchema.safeParse(shared).success, true);
+});
+
+test('a submission may decorate its residual without losing the case', () => {
+  const decorated = {
+    matches: [
+      {
+        ...validMatch(),
+        residual: { amount: 0, currency: 'USD', exponent: 2, formatted: '0.00' },
+      },
+    ],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  assert.equal(expectedSchema.safeParse(decorated).success, false);
+
+  const parsed = submissionSchema.parse(decorated);
+  assert.deepEqual(parsed.matches[0]?.residual, money(0, 'USD'));
+});
+
+test('a submission that abstains one against one is scored, not rejected', () => {
+  // Wrong answer, and the score names it: false_abstain. Rejecting the whole stdout line
+  // would throw away every correct match in the same case.
+  const abstained = {
+    matches: [validMatch()],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [
+      { a: ['ch_9'], candidates_b: ['bt_9'], reason: 'out_of_order_events' as const },
+    ],
+  };
+  assert.equal(submissionSchema.safeParse(abstained).success, true);
+  assert.equal(expectedSchema.safeParse(abstained).success, false);
+});
+
+test('a submission is still held to one verdict per id', () => {
+  const doubleMatched = {
+    matches: [validMatch(), { ...validMatch(), b: ['bt_2'] }],
+    unmatched_a: [],
+    unmatched_b: [],
+    ambiguous: [],
+  };
+  assert.equal(submissionSchema.safeParse(doubleMatched).success, false);
+});
