@@ -201,9 +201,9 @@ corpus/timing/charge-crosses-month-boundary/
 `reason` é enum fechado — sem isso, comparar "não casou" entre implementações vira análise
 de texto livre.
 
-### Quatro convenções que o score compara byte a byte
+### Cinco convenções que o score compara byte a byte
 
-O runner compara resíduo e conjuntos por igualdade exata. Quatro coisas ficariam decididas por
+O runner compara resíduo e conjuntos por igualdade exata. Cinco coisas ficariam decididas por
 acaso pelo primeiro caso que as usasse, e por isso estão fixadas aqui.
 
 **Sinal e moeda do resíduo.** `residual` é sempre `soma do lado A menos soma do lado B`, na
@@ -222,6 +222,16 @@ registro pode citar uma cobrança de um período anterior que não está em nenh
 Isso não é `corrupted_reference` — esse motivo é para referência malformada ou que aponta para
 algo inutilizável dentro do próprio caso. Referência a um id ausente do arquivo simplesmente
 não é evidência utilizável, e o casamento se resolve pelos outros campos.
+
+**A soma de um lado usa `net` quando a fonte o reporta, e `gross` quando não.** A convenção
+acima fixa o sinal e a moeda do resíduo, mas não diria qual campo entra na conta — e os dois
+lados quase nunca reportam os mesmos. Um PSP informa bruto, taxa e líquido; o banco viu entrar
+um valor só. Então: para cada registro, o valor que conta é `net` se a fonte o preencheu, senão
+`gross`; para um registro com perna cambial, é o valor na moeda de liquidação. Uma cobrança de
+125,00 com taxa de 3,95 e líquido de 121,05 casa com um crédito bancário de 121,05 com resíduo
+**zero** — o bruto diferente não é diferença, é a taxa, que é uma perna própria com registro
+próprio (categoria B). Somar bruto contra líquido produziria resíduo em todo par com taxa
+reportada, e a taxa apareceria duas vezes no relatório.
 
 **`fx.settlement` é por perna e não é somável.** O campo diz quanto *aquele* registro liquida
 sozinho, já arredondado. Quando várias pernas liquidam numa única linha do outro lado, o valor

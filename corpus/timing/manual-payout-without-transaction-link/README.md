@@ -44,4 +44,29 @@ A dúvida é um bloco: dois saques disputando um crédito. O `expected.json` esc
 
 O score compara as entradas como conjuntos: quem emitir uma por registro descreve a mesma
 incerteza para um leitor humano e leva `false_abstain` nas duas. A convenção está no
-`SPEC.md`, § "Quatro convenções que o score compara byte a byte".
+`SPEC.md`, § "Cinco convenções que o score compara byte a byte".
+
+## Fonte
+
+`SPEC.md` exige que a alegação sobre a limitação da Stripe seja reconfirmada a cada release do
+corpus, com data de consulta e URL registradas aqui.
+
+- **Consultado em:** 2026-08-26
+- **URL:** https://docs.stripe.com/reports/payout-reconciliation
+- **Página:** "Relatório de reconciliação de repasses"
+
+O que a página diz, na data acima:
+
+> O relatório de reconciliação de repasses só está disponível para usuários com **repasses
+> automáticos** habilitados, ou para uma plataforma com repasses manuais cujas contas
+> conectadas tenham repasses automáticos habilitados [...]. Se você usa repasses manuais (e não
+> é uma plataforma cujas contas conectadas tenham repasses automáticos habilitados) [...],
+> consulte o relatório de Saldo.
+
+> Você controla o momento e o valor dos repasses instantâneos, de modo que a Stripe não
+> identifica quais transações são incluídas em cada repasse. Você é responsável pela
+> reconciliação dos repasses instantâneos com seu histórico de transações.
+
+É essa a lacuna que o caso reproduz: com saque manual não há relatório transação-a-transação, e
+o vínculo entre saque e crédito bancário simplesmente não existe na fonte. Se a Stripe fechar o
+buraco, o caso continua válido como caso histórico, e esta seção passa a dizer isso.

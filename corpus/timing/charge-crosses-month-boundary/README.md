@@ -36,3 +36,18 @@ Nenhuma outra cobrança do arquivo tem esse valor, então o par é único.
 A virada de mês é o que torna o caso difícil: quem filtra por competência
 mensal perde as duas liquidações de abril e reporta março inteiro como não
 conciliado.
+
+## Fonte
+
+A defasagem entre a criação da cobrança e a data em que o dinheiro fica disponível é o campo
+`available_on` da balance transaction, e é o que a virada de mês deste caso exercita.
+
+- **Consultado em:** 2026-08-26
+- **URL:** https://docs.stripe.com/reports/payout-reconciliation
+- **Página:** "Relatório de reconciliação de repasses"
+
+> A seção **Reconciliação de saldo final** detalha as transações que não haviam sido liquidadas
+> na data final do relatório.
+
+É o `ch_1002` deste caso: criado dentro do período, não liquidado até o fim dele, e por isso
+`not_yet_settled` em vez de quebra.

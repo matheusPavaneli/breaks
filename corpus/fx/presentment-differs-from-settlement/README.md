@@ -55,5 +55,5 @@ true` manda fazer.
 
 Não é pegadinha do arquivo: é a propriedade que faz taxa de câmbio doer na prática, e um caso
 que não a exercitasse deixaria passar todo motor que trata dinheiro convertido como número que
-pode ser somado depois de arredondado. A regra geral está no `SPEC.md`, § "Quatro convenções
+pode ser somado depois de arredondado. A regra geral está no `SPEC.md`, § "Cinco convenções
 que o score compara byte a byte".
