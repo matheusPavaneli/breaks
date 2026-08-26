@@ -20,26 +20,6 @@
     "metadata": {}
   },
   {
-    "id": "bt_8002",
-    "source": "bank",
-    "source_system": "northbank",
-    "version": 1,
-    "occurred_at": "2026-04-14T13:41:00Z",
-    "settled_at": "2026-04-14T13:41:00Z",
-    "gross": {
-      "amount": 50000,
-      "currency": "USD",
-      "exponent": 2
-    },
-    "fee": null,
-    "net": null,
-    "fx": null,
-    "category": "payout",
-    "status": "available",
-    "references": [],
-    "metadata": {}
-  },
-  {
     "id": "bt_8003",
     "source": "bank",
     "source_system": "northbank",

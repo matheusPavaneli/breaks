@@ -27,7 +27,7 @@
     "occurred_at": "2026-06-09T12:00:00Z",
     "settled_at": "2026-06-09T12:00:00Z",
     "gross": {
-      "amount": 4724,
+      "amount": 9715,
       "currency": "USD",
       "exponent": 2
     },
@@ -47,7 +47,7 @@
     "occurred_at": "2026-06-09T12:00:00Z",
     "settled_at": "2026-06-09T12:00:00Z",
     "gross": {
-      "amount": 4790,
+      "amount": 9714,
       "currency": "USD",
       "exponent": 2
     },

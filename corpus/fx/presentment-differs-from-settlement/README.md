@@ -6,33 +6,41 @@
 
 A loja é americana e vende para o Japão. O cliente paga em ienes, o gateway liquida em
 dólares. Três vendas no dia 8 de junho, à taxa contratada de **0,0067 USD por iene** — no
-arquivo, o par de inteiros `67/10000`, nunca um decimal.
+arquivo, o par de inteiros `67/10000`, nunca um decimal. O iene tem expoente 0, então um iene
+vale 0,67 centavo de dólar.
 
-- `ch_7001` — ¥15.001. Convertido: 15.001 × 0,67 centavo = **10.050,67 centavos**.
-  Arredondado para o centavo mais próximo: **US$ 100,51**.
-- `ch_7002` — ¥7.050. Convertido: **4.723,50 centavos**, exatamente meio centavo.
-  `half_even` manda para o par: **US$ 47,24**.
-- `ch_7003` — ¥7.150. Convertido: **4.790,50 centavos**, o outro meio centavo.
-  Aqui o vizinho de baixo já é par, e `half_even` manda para **US$ 47,90** — enquanto
-  arredondar meio-para-cima daria US$ 47,91.
+- `ch_7001` — ¥15.001. Convertido: **10.050,67 centavos** → o banco credita **US$ 100,51**,
+  sozinho, numa linha própria.
+- `ch_7002` — ¥7.150 → **4.790,50 centavos**, exatamente meio centavo.
+- `ch_7003` — ¥7.350 → **4.924,50 centavos**, o outro meio centavo.
 
-O extrato tem os três créditos, em dólar, **sem referência nenhuma**. O banco não sabe o que
-é um iene; ele só viu dinheiro entrar.
+As duas últimas o banco **não** credita separadas: ele paga o lote em uma linha só.
+
+O extrato tem três créditos: **US$ 100,51**, **US$ 97,15** e **US$ 97,14**. Nenhum deles
+carrega referência — o banco não sabe o que é um iene, ele só viu dinheiro entrar.
 
 ## Por que essa é a resposta certa
 
-Nenhum dos pares fecha comparando `gross` com `gross`: de um lado há ienes, do outro dólares,
-e 15.001 nunca vai ser 10.051. O par só existe **depois de converter** — daí a regra
-`fx_converted`.
+`ch_7001` casa sozinho, pela regra `fx_converted`: o par não existe comparando `gross` com
+`gross`, porque de um lado há ienes e do outro dólares, e 15.001 nunca vai ser 10.051.
 
-O iene tem expoente 0: ¥15.001 são 15.001 unidades mínimas, não 150,01. Quem assume centavos
-em toda moeda erra a conversão por um fator de cem e não casa nada. É o caso mais barato do
-corpus para pegar esse bug.
+`ch_7002` e `ch_7003` casam **juntos** com o crédito de US$ 97,15, por `group_sum` sobre as
+pernas convertidas. E é aqui que o caso separa quem converte de quem copia:
 
-As duas últimas vendas existem para separar `half_even` de meio-para-cima, e uma sozinha não
-separaria: em 4.723,50 as duas regras dão US$ 47,24, e o acerto é acidente. Em 4.790,50 elas
-divergem — `half_even` desempata para o **par**, US$ 47,90, e meio-para-cima dá US$ 47,91,
-que não existe no extrato. A `policy.json` declara `rounding: half_even`, e a implementação
-que ignora esse campo e crava a regra que aprendeu na escola perde este par.
+| como o motor faz a conta | resultado |
+|---|---|
+| converte cada perna, arredonda cada uma, soma: 4790 + 4924 | **9714** |
+| soma as pernas convertidas e arredonda o total: 4.790,50 + 4.924,50 = 9.715,00 | **9715** |
 
-Resíduo zero nos três. A conversão fecha na unidade mínima, não "quase".
+A `policy.json` declara `round_after_conversion: true`, e o banco pagou **US$ 97,15**. Quem
+arredonda antes de somar erra por um centavo, casa o par errado — o crédito de US$ 97,14 está
+lá, esperando — e ainda reporta a linha certa como quebra. Dois erros de um bug só.
+
+O crédito de US$ 97,14 fica sem par, com `no_counterpart_record`. Ele existe no extrato porque
+existe: é o valor que o cálculo errado produz, e um arquivo real tem linhas assim.
+
+Repare também no expoente. ¥15.001 são 15.001 unidades mínimas, não 150,01 — quem assume
+centavos em toda moeda erra a conversão por um fator de cem e não casa nada. E os dois meios
+centavos são `half_even` de verdade: 4.790,50 desce para 4790 e 4.924,50 desce para 4924,
+porque o vizinho par é o de baixo nos dois. Meio-para-cima daria 4791 e 4925, que somam 9716 e
+não existem em lugar nenhum do extrato.

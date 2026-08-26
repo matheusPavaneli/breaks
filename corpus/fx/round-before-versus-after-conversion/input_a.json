@@ -5,7 +5,7 @@
     "source_system": "acme_psp",
     "version": 1,
     "occurred_at": "2026-06-20T09:12:00Z",
-    "settled_at": "2026-06-21T09:12:00Z",
+    "settled_at": "2026-06-21T09:00:00Z",
     "gross": {
       "amount": 100002,
       "currency": "BHD",
@@ -43,7 +43,7 @@
     "source_system": "acme_psp",
     "version": 1,
     "occurred_at": "2026-06-20T10:03:00Z",
-    "settled_at": "2026-06-21T10:03:00Z",
+    "settled_at": "2026-06-21T09:00:00Z",
     "gross": {
       "amount": 200000,
       "currency": "BHD",
@@ -81,7 +81,7 @@
     "source_system": "acme_psp",
     "version": 1,
     "occurred_at": "2026-06-20T10:44:00Z",
-    "settled_at": "2026-06-21T10:44:00Z",
+    "settled_at": "2026-06-21T09:00:00Z",
     "gross": {
       "amount": 200001,
       "currency": "BHD",
@@ -104,6 +104,44 @@
       },
       "settlement": {
         "amount": 53050,
+        "currency": "USD",
+        "exponent": 2
+      }
+    },
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_9004",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-06-20T11:20:00Z",
+    "settled_at": "2026-06-21T09:00:00Z",
+    "gross": {
+      "amount": 100003,
+      "currency": "BHD",
+      "exponent": 3
+    },
+    "fee": null,
+    "net": null,
+    "fx": {
+      "rate": {
+        "num": 26525,
+        "den": 10000,
+        "from": "BHD",
+        "to": "USD",
+        "quoted_at": "2026-06-20T09:00:00Z"
+      },
+      "presentment": {
+        "amount": 100003,
+        "currency": "BHD",
+        "exponent": 3
+      },
+      "settlement": {
+        "amount": 26526,
         "currency": "USD",
         "exponent": 2
       }

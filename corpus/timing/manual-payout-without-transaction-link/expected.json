@@ -28,8 +28,7 @@
         "po_7002"
       ],
       "candidates_b": [
-        "bt_8001",
-        "bt_8002"
+        "bt_8001"
       ],
       "reason": "payout_without_transaction_link"
     }

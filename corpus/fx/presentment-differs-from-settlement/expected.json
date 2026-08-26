@@ -22,37 +22,18 @@
     },
     {
       "a": [
-        "ch_7002"
+        "ch_7002",
+        "ch_7003"
       ],
       "b": [
         "bt_8102"
       ],
-      "rule": "fx_converted",
+      "rule": "group_sum",
       "fields_used": [
         "fx.rate",
         "fx.presentment",
-        "fx.settlement",
-        "gross"
-      ],
-      "residual": {
-        "amount": 0,
-        "currency": "USD",
-        "exponent": 2
-      }
-    },
-    {
-      "a": [
-        "ch_7003"
-      ],
-      "b": [
-        "bt_8103"
-      ],
-      "rule": "fx_converted",
-      "fields_used": [
-        "fx.rate",
-        "fx.presentment",
-        "fx.settlement",
-        "gross"
+        "gross",
+        "settled_at"
       ],
       "residual": {
         "amount": 0,
@@ -62,6 +43,11 @@
     }
   ],
   "unmatched_a": [],
-  "unmatched_b": [],
+  "unmatched_b": [
+    {
+      "id": "bt_8103",
+      "reason": "no_counterpart_record"
+    }
+  ],
   "ambiguous": []
 }

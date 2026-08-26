@@ -2,17 +2,18 @@
   "matches": [
     {
       "a": [
-        "ch_9001"
+        "ch_9001",
+        "ch_9004"
       ],
       "b": [
         "bt_9101"
       ],
-      "rule": "fx_converted",
+      "rule": "group_sum",
       "fields_used": [
         "fx.rate",
         "fx.presentment",
-        "fx.settlement",
-        "gross"
+        "gross",
+        "settled_at"
       ],
       "residual": {
         "amount": 0,

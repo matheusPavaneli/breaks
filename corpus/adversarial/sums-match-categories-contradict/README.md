@@ -25,10 +25,16 @@ a outra é capital entrando. Casá-los faz duas mentiras ao mesmo tempo — a
 venda aparece como recebida quando o dinheiro dela ainda não chegou, e o aporte
 some da conta de capital.
 
-Os dois ficam sem par, com motivo `category_mismatch`. O motivo importa: não é
-"não achei" nem "está fora da tolerância". Achou-se um candidato de valor
-exato, e ele foi recusado porque a natureza dos dois lançamentos é
-incompatível.
+Os dois ficam sem par, com motivo `category_mismatch`. O motivo é o registro de por que a
+recusa aconteceu: não é "não achei" nem "está fora da tolerância" — achou-se um candidato de
+valor exato, e ele foi recusado porque a natureza dos dois lançamentos é incompatível. É essa
+frase que a fila de exceção precisa ler.
+
+O que o caso cobra hoje é o casamento que **não** deve existir: os cinco contadores do
+`SPEC.md` § "Score único não serve" contam casamentos e abstenções, e não leem `unmatched_a`
+nem `unmatched_b`. Casar as duas linhas custa dois falsos casamentos; escolher o motivo errado
+para elas, por enquanto, não custa nada no placar. A `reason` está aqui porque é a verdade do
+caso e porque `breaks verify` e a fila de exceção a consomem — não porque o score a puna.
 
 É a regra geral que o caso quer instalar: **valor e data não bastam.**
 Categoria é evidência, e evidência que contradiz derruba um casamento que a

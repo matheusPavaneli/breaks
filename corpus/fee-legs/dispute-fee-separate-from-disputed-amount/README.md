@@ -24,15 +24,17 @@ A taxa de disputa **não casa com nada, e isso é o resultado correto**:
 `fee_leg_only`. É uma perna de taxa que existe sozinha neste período, sem perna
 bruta e sem contrapartida no extrato.
 
-Duas saídas erradas que o caso pune:
+A saída errada que o caso cobra é **casar a taxa com o débito de US$ 300,00**, tratando os
+dois como o mesmo evento porque compartilham a mesma disputa. São dois fatos financeiros, e
+somá-los faz o extrato parecer ter movimentado US$ 315,00. Isso é um falso casamento, e o
+score cobra por ele.
 
-- **Casar a taxa com o débito de US$ 300,00**, tratando os dois como o mesmo
-  evento porque compartilham a mesma disputa. São dois fatos financeiros, e
-  somá-los faz o extrato parecer ter movimentado US$ 315,00.
-- **Reportar `no_counterpart_record`**. É verdade que não há contrapartida, mas
-  o motivo perde a informação que importa: a linha órfã é uma taxa, ela vai
-  aparecer no extrato do próximo período, e quem lê a fila de exceção precisa
-  saber disso para não abrir chamado.
+Reportar `no_counterpart_record` em vez de `fee_leg_only` é impreciso pelo mesmo motivo que o
+`reason` existe: a linha órfã é uma taxa, vai aparecer no extrato do próximo período, e quem
+lê a fila de exceção precisa saber disso para não abrir chamado. Mas é honesto dizer o que o
+placar faz hoje: os cinco contadores do `SPEC.md` § "Score único não serve" não leem
+`unmatched_a` nem `unmatched_b`, então trocar esse motivo não muda nota nenhuma. O campo é a
+verdade do caso e a entrada da fila de exceção, não uma armadilha pontuada.
 
 ### `ch_5000` não está no arquivo, e isso é normal
 

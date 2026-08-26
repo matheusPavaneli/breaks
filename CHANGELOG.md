@@ -23,7 +23,7 @@ A seleção cobre as sete regras de casamento do schema pelo menos uma vez cada 
 - `timing/charge-crosses-month-boundary` — venda no dia 31, liquidação no dia 2; uma venda
   ainda não liquidada na virada.
 - `timing/manual-payout-without-transaction-link` — dois saques manuais de valor idêntico,
-  sem vínculo transacional. Abstenção.
+  sem vínculo transacional, e um único crédito no período. Abstenção.
 
 **Pernas de taxa (B)**
 
@@ -34,10 +34,12 @@ A seleção cobre as sete regras de casamento do schema pelo menos uma vez cada 
 
 **Câmbio (C)**
 
-- `fx/presentment-differs-from-settlement` — JPY (expoente 0) → USD, com dois empates de
-  meio centavo: um em que `half_even` e meio-para-cima concordam, e outro em que divergem.
-- `fx/round-before-versus-after-conversion` — BHD (expoente 3) → USD; uma armadilha para
-  quem arredonda antes de converter, e um empate real de arredondamento. Abstenção.
+- `fx/presentment-differs-from-settlement` — JPY (expoente 0) → USD. Um par direto e um lote
+  que o banco pagou em uma linha só: arredondar cada perna antes de somar erra por um centavo,
+  e o valor errado está no extrato esperando.
+- `fx/round-before-versus-after-conversion` — BHD (expoente 3) → USD; a mesma armadilha na
+  moeda de três casas, mais um empate real em que duas vendas distintas liquidam no mesmo
+  valor. Abstenção.
 
 **Agrupamento (D)**
 
