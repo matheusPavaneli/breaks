@@ -38,7 +38,15 @@ async function isDirectory(path: string): Promise<boolean> {
 }
 
 async function directoryNames(dir: string): Promise<string[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (cause) {
+    // A mistyped root - `breaks run ./corpuss` - would otherwise surface as a bare errno from
+    // deep inside the walk, when this file's whole contract is that a corpus that cannot be
+    // read says which path and why.
+    throw new CaseFileError(dir, 'cannot be listed while walking the corpus', [], cause);
+  }
   const names: string[] = [];
   // Sequential, and in the order readdir returned: the walk has to report the same defect
   // every time it runs, and a `Promise.all` here would let disk timing pick which of two
@@ -100,7 +108,24 @@ export async function findCaseDirs(root: string): Promise<string[]> {
   const cases: string[] = [];
   for (const dir of dirs) {
     const present = await caseFilesPresent(dir);
-    if (present.length === 0) continue;
+    if (present.length === 0) {
+      // Nothing here, but a case may have been moved a level too deep. The walk stops at
+      // depth 2 by design - `caseIdFromDir` reads the id off the last two segments - so a
+      // case one level below would be dropped from the run, and the score would be a mean
+      // over a denominator nobody chose. Looked for, and refused, rather than skipped.
+      for (const nested of await directoryNames(dir)) {
+        const buried = join(dir, nested);
+        if ((await caseFilesPresent(buried)).length > 0) {
+          throw new CaseFileError(
+            buried,
+            'holds case files below <category>/<slug>, where the corpus is not read',
+            [],
+            undefined,
+          );
+        }
+      }
+      continue;
+    }
     if (present.length < CASE_FILES.length) {
       const missing = CASE_FILES.filter((file) => !present.includes(file));
       throw new CaseFileError(

@@ -139,6 +139,28 @@ test('a root with no case directory is refused instead of scoring an empty run',
   }
 });
 
+test('a case buried one level too deep is refused, not walked past', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case'], ['timing/nested/buried']]);
+  try {
+    await assert.rejects(findCaseDirs(root), (error: unknown) => {
+      assert.ok(error instanceof CaseFileError);
+      assert.match(error.message, /below <category>\/<slug>/);
+      assert.match(error.file, /buried/);
+      return true;
+    });
+  } finally {
+    await cleanup();
+  }
+});
+
+test('a path that cannot be listed says which path, not just an errno', async () => {
+  await assert.rejects(loadCorpus(join(tmpdir(), 'breaks-corpus-does-not-exist')), (error: unknown) => {
+    assert.ok(error instanceof CaseFileError);
+    assert.match(error.message, /cannot be listed while walking the corpus/);
+    return true;
+  });
+});
+
 test('a case reached through a symlinked directory is part of the corpus', async () => {
   const { root, cleanup } = await writeCorpus([['timing/real-case']]);
   const elsewhere = await mkdtemp(join(tmpdir(), 'breaks-linked-'));
