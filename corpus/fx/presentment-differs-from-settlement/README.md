@@ -44,3 +44,16 @@ centavos em toda moeda erra a conversão por um fator de cem e não casa nada. E
 centavos são `half_even` de verdade: 4.790,50 desce para 4790 e 4.924,50 desce para 4924,
 porque o vizinho par é o de baixo nos dois. Meio-para-cima daria 4791 e 4925, que somam 9716 e
 não existem em lugar nenhum do extrato.
+
+### `fx.settlement` é por perna, e a soma de duas não é a liquidação do lote
+
+Cada registro declara em `fx.settlement` quanto ele liquida **sozinho**, já arredondado. Somar
+os campos declarados das duas pernas dá **9714**, que é justamente a linha isca — o resultado de
+arredondar antes de somar. A liquidação do lote é **9715**: converte-se cada perna com o
+racional exato, soma-se, e arredonda-se uma vez no fim, que é o que `round_after_conversion:
+true` manda fazer.
+
+Não é pegadinha do arquivo: é a propriedade que faz taxa de câmbio doer na prática, e um caso
+que não a exercitasse deixaria passar todo motor que trata dinheiro convertido como número que
+pode ser somado depois de arredondado. A regra geral está no `SPEC.md`, § "Quatro convenções
+que o score compara byte a byte".

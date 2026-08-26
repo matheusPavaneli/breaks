@@ -47,5 +47,5 @@ ordem, na moeda de liquidação. A cobrança é 10000, o crédito é 9999, entã
 
 Uma implementação que calcule `B − A` chega a `-1`, aponta o par certo, faz a aritmética certa
 — e é pontuada como falso casamento, porque o runner compara resíduo por igualdade exata. A
-convenção está no `SPEC.md`, § "Três convenções que o score compara byte a byte"; este é o
+convenção está no `SPEC.md`, § "Quatro convenções que o score compara byte a byte"; este é o
 primeiro caso do corpus em que ela é visível.

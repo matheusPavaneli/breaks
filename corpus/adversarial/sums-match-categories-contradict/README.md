@@ -36,6 +36,12 @@ nem `unmatched_b`. Casar as duas linhas custa dois falsos casamentos; escolher o
 para elas, por enquanto, não custa nada no placar. A `reason` está aqui porque é a verdade do
 caso e porque `breaks verify` e a fila de exceção a consomem — não porque o score a puna.
 
+A tabela de compatibilidade está no `SPEC.md`, § "Compatibilidade de categoria": uma venda
+liquida como `charge` ou dentro de um `payout`, nunca como `topup`, que é capital do dono
+entrando. Sem essa tabela escrita, este caso e o `grouping/many-charges-one-payout` — onde três
+`charge` casam com um `payout` — se contradiriam: um motor que aprendesse "categoria tem de ser
+igual" quebraria lá, e um que ignorasse categoria quebraria aqui.
+
 É a regra geral que o caso quer instalar: **valor e data não bastam.**
 Categoria é evidência, e evidência que contradiz derruba um casamento que a
 soma aprovaria. Um motor que só compara números fecha este arquivo com 100% de

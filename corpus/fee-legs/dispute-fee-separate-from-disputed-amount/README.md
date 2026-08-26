@@ -46,4 +46,4 @@ Isso **não** é `corrupted_reference`. A referência é bem formada e verdadeir
 para fora da janela. `corrupted_reference` é para referência malformada, ou que aponta para
 algo inutilizável dentro do próprio caso. Motor que trata "não achei o id" como corrupção
 perde um par que a referência da disputa já resolvia. A regra geral está no `SPEC.md`,
-§ "Três convenções que o score compara byte a byte".
+§ "Quatro convenções que o score compara byte a byte".

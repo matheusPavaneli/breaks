@@ -40,3 +40,16 @@ A saída tentadora é "a exata ganha": casar `ch_9002`, que converte redondo, e 
 de fora. A `policy.json` não concede isso. Depois do arredondamento — que é o que ela manda
 fazer — os dois valores são o mesmo valor, e preferir um é preferência do motor, não evidência
 do caso. A resposta certa é `ambiguous`, motivo `fx_rounding_tie`.
+
+### `fx.settlement` é por perna, e a soma de duas não é a liquidação do lote
+
+Cada registro declara em `fx.settlement` quanto ele liquida **sozinho**, já arredondado. Somar
+os campos declarados das duas pernas dá **53052**, que é justamente a linha isca — o resultado de
+arredondar antes de somar. A liquidação do lote é **53051**: converte-se cada perna com o
+racional exato, soma-se, e arredonda-se uma vez no fim, que é o que `round_after_conversion:
+true` manda fazer.
+
+Não é pegadinha do arquivo: é a propriedade que faz taxa de câmbio doer na prática, e um caso
+que não a exercitasse deixaria passar todo motor que trata dinheiro convertido como número que
+pode ser somado depois de arredondado. A regra geral está no `SPEC.md`, § "Quatro convenções
+que o score compara byte a byte".

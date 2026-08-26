@@ -44,4 +44,4 @@ A dúvida é um bloco: dois saques disputando um crédito. O `expected.json` esc
 
 O score compara as entradas como conjuntos: quem emitir uma por registro descreve a mesma
 incerteza para um leitor humano e leva `false_abstain` nas duas. A convenção está no
-`SPEC.md`, § "Três convenções que o score compara byte a byte".
+`SPEC.md`, § "Quatro convenções que o score compara byte a byte".

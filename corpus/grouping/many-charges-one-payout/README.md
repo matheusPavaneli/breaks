@@ -26,6 +26,11 @@ Um par, três registros de um lado e um do outro, regra `group_sum`, resíduo
 zero. A justificativa é a soma dos líquidos — `fields_used` diz exatamente
 isso, e um casamento sem essa justificativa não passa no schema.
 
+As três vendas são `charge` e o crédito é `payout`, e casar categorias diferentes aqui é
+correto: o payout é a forma como um lote de cobranças chega ao banco. Quais combinações são
+legítimas está no `SPEC.md`, § "Compatibilidade de categoria" — a regra recusa naturezas
+incompatíveis, não nomes diferentes.
+
 Duas coisas que o caso cobra:
 
 - **Não parear individualmente.** Nenhuma das três vendas tem o valor do

@@ -59,7 +59,7 @@ Corpus 100% público num repo que agentes de IA leem inteiro = leaderboard sem s
 ### 3. Score único não serve
 
 Uma nota agregada premia exatamente o comportamento que o projeto diz ser pior. O placar
-reporta quatro números, sempre juntos, nunca colapsados:
+reporta cinco números, sempre juntos, nunca colapsados:
 
 ```
 true_match        casamento correto proposto
@@ -201,9 +201,9 @@ corpus/timing/charge-crosses-month-boundary/
 `reason` é enum fechado — sem isso, comparar "não casou" entre implementações vira análise
 de texto livre.
 
-### Três convenções que o score compara byte a byte
+### Quatro convenções que o score compara byte a byte
 
-O runner compara resíduo e conjuntos por igualdade exata. Três coisas ficariam decididas por
+O runner compara resíduo e conjuntos por igualdade exata. Quatro coisas ficariam decididas por
 acaso pelo primeiro caso que as usasse, e por isso estão fixadas aqui.
 
 **Sinal e moeda do resíduo.** `residual` é sempre `soma do lado A menos soma do lado B`, na
@@ -222,6 +222,35 @@ registro pode citar uma cobrança de um período anterior que não está em nenh
 Isso não é `corrupted_reference` — esse motivo é para referência malformada ou que aponta para
 algo inutilizável dentro do próprio caso. Referência a um id ausente do arquivo simplesmente
 não é evidência utilizável, e o casamento se resolve pelos outros campos.
+
+**`fx.settlement` é por perna e não é somável.** O campo diz quanto *aquele* registro liquida
+sozinho, já arredondado. Quando várias pernas liquidam numa única linha do outro lado, o valor
+dessa linha **não** é a soma dos `fx.settlement` declarados: com `round_after_conversion: true`
+converte-se cada perna com o racional exato, soma-se, e arredonda-se **uma vez** no fim. Somar
+valores já arredondados acumula o erro de cada um — é a diferença entre 4790 + 4924 = 9714 e
+9.715,00 arredondado a 9715, e o corpus tem casos em que as duas linhas existem no extrato.
+
+### Compatibilidade de categoria
+
+Valor e data batendo não fazem um par. `category` é evidência, e um casamento entre categorias
+economicamente incompatíveis é falso mesmo com resíduo zero. As combinações que o corpus trata
+como legítimas, do lado A para o lado B:
+
+| lado A | pode liquidar como | por quê |
+|---|---|---|
+| `charge` | `charge`, `payout` | a venda cruza sozinha, ou dentro do lote que a pagou |
+| `refund`, `dispute` | `refund`, `dispute` | dinheiro saindo, do mesmo evento |
+| `fee` | `fee` | perna de taxa casa com perna de taxa, nunca com o bruto |
+| `payout` | `payout` | o saque e o crédito correspondente |
+| `transfer`, `topup` | `transfer`, `topup` | movimento interno ou capital do dono entrando |
+
+O que a tabela recusa é o casamento entre naturezas diferentes — uma venda liquidando contra um
+aporte do lojista, um estorno contra uma taxa — e é isso, e não a igualdade de nomes, que a
+regra diz. Uma cobrança casando com um payout é normal: o payout é a forma como um lote de
+cobranças chega ao banco. `category_mismatch` é o motivo de quem recusa um par por esta tabela.
+
+Categorias fora dela (`dispute_reversal`, `payout_failure`, `payout_reversal`, `adjustment`)
+entram com os casos que as usarem, nas fatias seguintes do corpus.
 
 ## Corpus v1 — 40 casos
 
