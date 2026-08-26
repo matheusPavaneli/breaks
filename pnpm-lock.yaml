@@ -17,6 +17,15 @@ importers:
 
   packages/money: {}
 
+  packages/runner:
+    dependencies:
+      '@breaks/money':
+        specifier: workspace:*
+        version: link:../money
+      '@breaks/schema':
+        specifier: workspace:*
+        version: link:../schema
+
   packages/schema:
     dependencies:
       '@breaks/money':

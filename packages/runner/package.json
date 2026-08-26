@@ -1,0 +1,17 @@
+{
+  "name": "@breaks/runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@breaks/money": "workspace:*",
+    "@breaks/schema": "workspace:*"
+  }
+}
