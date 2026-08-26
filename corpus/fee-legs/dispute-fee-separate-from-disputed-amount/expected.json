@@ -1,0 +1,30 @@
+{
+  "matches": [
+    {
+      "a": [
+        "dp_5001"
+      ],
+      "b": [
+        "bt_6001"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [
+    {
+      "id": "fee_5002",
+      "reason": "fee_leg_only"
+    }
+  ],
+  "unmatched_b": [],
+  "ambiguous": []
+}

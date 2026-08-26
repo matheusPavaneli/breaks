@@ -1,0 +1,46 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_1701"
+      ],
+      "b": [
+        "bt_1801"
+      ],
+      "rule": "amount_within_tolerance",
+      "fields_used": [
+        "gross",
+        "settled_at"
+      ],
+      "residual": {
+        "amount": 1,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [
+    {
+      "id": "ch_1702",
+      "reason": "amount_beyond_tolerance"
+    }
+  ],
+  "unmatched_b": [
+    {
+      "id": "bt_1802",
+      "reason": "amount_beyond_tolerance"
+    }
+  ],
+  "ambiguous": [
+    {
+      "a": [
+        "ch_1703"
+      ],
+      "candidates_b": [
+        "bt_1803",
+        "bt_1804"
+      ],
+      "reason": "multiple_candidates_within_tolerance"
+    }
+  ]
+}

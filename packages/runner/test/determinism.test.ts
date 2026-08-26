@@ -46,7 +46,7 @@ test('shuffling the records and the answer leaves the report hash byte-identical
     );
 
     assert.equal(result.status, 'scored', `seed ${String(seed)} did not score`);
-    hashes.add(reportHash(buildCorpusReport([result])));
+    hashes.add(reportHash(buildCorpusReport([result], null)));
   }
 
   assert.equal(hashes.size, 1, `expected one hash across ${String(SEEDS.length)} seeds`);
@@ -57,13 +57,27 @@ test('the order the corpus was walked in cannot reach the hash', () => {
   const second = failedResult('fees/b-case', 'exit_nonzero', 'implementation ended with exit code 1', 10);
 
   assert.equal(
-    reportHash(buildCorpusReport([first, second])),
-    reportHash(buildCorpusReport([second, first])),
+    reportHash(buildCorpusReport([first, second], null)),
+    reportHash(buildCorpusReport([second, first], null)),
   );
   assert.deepEqual(
-    buildCorpusReport([first, second]).cases.map((result) => result.case_id),
+    buildCorpusReport([first, second], null).cases.map((result) => result.case_id),
     ['fees/b-case', 'timing/a-case'],
   );
+});
+
+test('the corpus version is stamped on the report and reaches the hash', () => {
+  const result = failedResult('timing/a-case', 'timeout', 'no output within 10 ms', 10);
+
+  // Same results, two corpora. Without the stamp these two runs are byte-identical, and a
+  // score measured on twelve cases is indistinguishable from one measured on forty.
+  assert.notEqual(
+    reportHash(buildCorpusReport([result], '0.1.0')),
+    reportHash(buildCorpusReport([result], '0.2.0')),
+  );
+  assert.equal(buildCorpusReport([result], '0.1.0').corpus_version, '0.1.0');
+  // No corpus root to read - a synthetic run - says so rather than inventing a version.
+  assert.equal(buildCorpusReport([result], null).corpus_version, null);
 });
 
 test('a duplicate case id is refused rather than ordered by the walk', () => {
@@ -73,7 +87,7 @@ test('a duplicate case id is refused rather than ordered by the walk', () => {
   const left = failedResult('timing/case-1', 'timeout', 'no output within 10 ms', 10);
   const right = failedResult('timing/case-1', 'exit_nonzero', 'implementation ended with exit code 1', 10);
 
-  assert.throws(() => buildCorpusReport([left, right]), /duplicate case id/);
+  assert.throws(() => buildCorpusReport([left, right], null), /duplicate case id/);
 });
 
 test('a case the runner could not deliver is kept out of the score, in its own column', async () => {
@@ -87,7 +101,7 @@ test('a case the runner could not deliver is kept out of the score, in its own c
   assert.equal(errored.status, 'errored');
   assert.equal(scored.settlement_score, 1);
 
-  const report = buildCorpusReport([scored, errored]);
+  const report = buildCorpusReport([scored, errored], null);
 
   assert.equal(report.errored_cases, 1);
   assert.equal(report.failed_cases, 0);
@@ -95,7 +109,7 @@ test('a case the runner could not deliver is kept out of the score, in its own c
   // Averaging the corpus defect in would have read 0.5 and put a corpus bug on the
   // participant's leaderboard row.
   assert.equal(report.settlement_score, 1);
-  assert.equal(buildCorpusReport([errored]).settlement_score, 0);
+  assert.equal(buildCorpusReport([errored], null).settlement_score, 0);
 });
 
 test('stableStringify sorts keys and leaves arrays alone', () => {
@@ -114,7 +128,7 @@ test('failures are counted in their own column instead of hiding in the mean', a
   );
   const failed = failedResult('fees/broken-case', 'timeout', 'no output within 10 ms', 10);
 
-  const report = buildCorpusReport([scored, failed]);
+  const report = buildCorpusReport([scored, failed], null);
 
   assert.equal(report.failed_cases, 1);
   assert.equal(report.scored_cases, 1);
@@ -132,7 +146,7 @@ test('failures are counted in their own column instead of hiding in the mean', a
 });
 
 test('an empty corpus reports zero rather than a division by nothing', () => {
-  const report = buildCorpusReport([]);
+  const report = buildCorpusReport([], null);
 
   assert.equal(report.settlement_score, 0);
   assert.equal(report.failed_cases, 0);

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "dp_5001",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-05-18T08:30:00Z",
+    "settled_at": "2026-05-18T08:30:00Z",
+    "gross": {
+      "amount": -30000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "dispute",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_5000"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "fee_5002",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-05-18T08:30:00Z",
+    "settled_at": null,
+    "gross": {
+      "amount": -1500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "fee",
+    "status": "pending",
+    "references": [
+      {
+        "type": "dispute",
+        "id": "dp_5001"
+      }
+    ],
+    "metadata": {}
+  }
+]

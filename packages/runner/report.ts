@@ -49,6 +49,21 @@ export type CaseResult = {
 };
 
 export type CorpusReport = {
+  /**
+   * The version of the corpus these numbers were measured on, from `corpus/VERSION`.
+   *
+   * CLAUDE.md: changing an existing case is breaking, and old scores stay marked with the
+   * version they ran on. A report without it is a number nobody can place - v0.1.0 with
+   * twelve cases and a later corpus with forty produce comparable-looking means over
+   * different corpora. It is part of the hashed bytes for the same reason: two runs that read
+   * different corpora must not be able to hash the same.
+   *
+   * The argument is required, `null` included: a default would let a caller that never read
+   * a corpus root publish an unstamped report by omission, which is the failure this field
+   * exists to make impossible. `null` is a deliberate statement that there was no root -
+   * a synthetic run, or a test.
+   */
+  readonly corpus_version: string | null;
   readonly cases: readonly CaseResult[];
   readonly counters: Counters;
   /** Decision 1: the mean of the per-case normalised scores - one case, one vote. */
@@ -156,7 +171,10 @@ function addCounters(left: Counters, right: Counters): Counters {
  * failures included at zero; the explainability tie-break averages only the cases that had a
  * correct decision to explain, and is null when none did.
  */
-export function buildCorpusReport(results: readonly CaseResult[]): CorpusReport {
+export function buildCorpusReport(
+  results: readonly CaseResult[],
+  corpus_version: string | null,
+): CorpusReport {
   // Sorting by a key two cases can share would leave their relative order decided by the walk
   // - which is filesystem order - and put it straight into the hash this function exists to
   // stabilise. A duplicate id is a corpus defect, so it is refused rather than tie-broken.
@@ -177,6 +195,7 @@ export function buildCorpusReport(results: readonly CaseResult[]): CorpusReport 
   const explainable = cases.filter((result) => result.explainability !== null);
 
   return {
+    corpus_version,
     cases,
     counters,
     settlement_score:

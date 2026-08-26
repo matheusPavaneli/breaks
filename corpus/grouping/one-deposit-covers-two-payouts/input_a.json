@@ -1,0 +1,22 @@
+[
+  {
+    "id": "po_1301",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-07-14T08:00:00Z",
+    "settled_at": "2026-07-14T08:00:00Z",
+    "gross": {
+      "amount": 100000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

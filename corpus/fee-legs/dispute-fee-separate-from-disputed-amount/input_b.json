@@ -1,0 +1,27 @@
+[
+  {
+    "id": "bt_6001",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-05-18T19:00:00Z",
+    "settled_at": "2026-05-18T19:00:00Z",
+    "gross": {
+      "amount": -30000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "dispute",
+    "status": "available",
+    "references": [
+      {
+        "type": "dispute",
+        "id": "dp_5001"
+      }
+    ],
+    "metadata": {}
+  }
+]

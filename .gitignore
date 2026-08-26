@@ -25,6 +25,7 @@ coverage/
 !/.gitattributes
 !/README.md
 !/CHANGELOG.md
+!/SPEC.md
 !/LICENSE
 !/package.json
 !/pnpm-workspace.yaml

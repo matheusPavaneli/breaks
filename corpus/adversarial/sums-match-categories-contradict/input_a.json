@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ch_2101",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-25T10:15:00Z",
+    "settled_at": "2026-08-25T10:15:00Z",
+    "gross": {
+      "amount": 12000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_2102",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-25T12:40:00Z",
+    "settled_at": "2026-08-25T12:40:00Z",
+    "gross": {
+      "amount": 7400,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

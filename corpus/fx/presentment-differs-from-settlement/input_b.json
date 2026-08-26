@@ -1,0 +1,62 @@
+[
+  {
+    "id": "bt_8101",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-06-09T12:00:00Z",
+    "settled_at": "2026-06-09T12:00:00Z",
+    "gross": {
+      "amount": 10051,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "bt_8102",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-06-09T12:00:00Z",
+    "settled_at": "2026-06-09T12:00:00Z",
+    "gross": {
+      "amount": 9715,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "bt_8103",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-06-09T12:00:00Z",
+    "settled_at": "2026-06-09T12:00:00Z",
+    "gross": {
+      "amount": 9714,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

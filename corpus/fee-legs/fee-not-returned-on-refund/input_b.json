@@ -1,0 +1,77 @@
+[
+  {
+    "id": "bt_4001",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-05-05T18:00:00Z",
+    "settled_at": "2026-05-05T18:00:00Z",
+    "gross": {
+      "amount": 20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_3001"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "bt_4002",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-05-05T18:00:00Z",
+    "settled_at": "2026-05-05T18:00:00Z",
+    "gross": {
+      "amount": -590,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "fee",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_3001"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "bt_4003",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-05-10T18:00:00Z",
+    "settled_at": "2026-05-10T18:00:00Z",
+    "gross": {
+      "amount": -20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "refund",
+    "status": "available",
+    "references": [
+      {
+        "type": "refund",
+        "id": "rf_3003"
+      }
+    ],
+    "metadata": {}
+  }
+]

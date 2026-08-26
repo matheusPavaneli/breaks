@@ -1,0 +1,114 @@
+[
+  {
+    "id": "ch_1101",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-07-07T09:00:00Z",
+    "settled_at": "2026-07-07T22:00:00Z",
+    "gross": {
+      "amount": 4350,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 140,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 4210,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1102",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-07-07T11:30:00Z",
+    "settled_at": "2026-07-07T22:00:00Z",
+    "gross": {
+      "amount": 3800,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 125,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 3675,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1103",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-07-07T15:45:00Z",
+    "settled_at": "2026-07-07T22:00:00Z",
+    "gross": {
+      "amount": 2200,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 85,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 2115,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1104",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-07-07T23:50:00Z",
+    "settled_at": null,
+    "gross": {
+      "amount": 2590,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 90,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 2500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "pending",
+    "references": [],
+    "metadata": {}
+  }
+]

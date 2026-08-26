@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ch_1001",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-03-31T18:40:12Z",
+    "settled_at": "2026-04-02T09:00:00Z",
+    "gross": {
+      "amount": 12500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 395,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 12105,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1002",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-03-31T23:58:04Z",
+    "settled_at": null,
+    "gross": {
+      "amount": 6400,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 216,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 6184,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "pending",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1003",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-03-31T20:00:31Z",
+    "settled_at": "2026-04-02T09:00:00Z",
+    "gross": {
+      "amount": 9100,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 310,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": 8790,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

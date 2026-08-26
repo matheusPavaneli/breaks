@@ -1,0 +1,68 @@
+[
+  {
+    "id": "po_7001",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-04-14T11:02:00Z",
+    "settled_at": "2026-04-14T11:02:00Z",
+    "gross": {
+      "amount": 50000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [],
+    "metadata": {
+      "payout_kind": "manual"
+    }
+  },
+  {
+    "id": "po_7002",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-04-14T11:17:00Z",
+    "settled_at": "2026-04-14T11:17:00Z",
+    "gross": {
+      "amount": 50000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [],
+    "metadata": {
+      "payout_kind": "manual"
+    }
+  },
+  {
+    "id": "po_7003",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-04-14T22:00:00Z",
+    "settled_at": "2026-04-14T22:00:00Z",
+    "gross": {
+      "amount": 32500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [],
+    "metadata": {
+      "payout_kind": "automatic"
+    }
+  }
+]

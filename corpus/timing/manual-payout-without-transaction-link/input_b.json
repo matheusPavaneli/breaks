@@ -1,0 +1,47 @@
+[
+  {
+    "id": "bt_8001",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-04-14T13:40:00Z",
+    "settled_at": "2026-04-14T13:40:00Z",
+    "gross": {
+      "amount": 50000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "bt_8003",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-04-15T02:10:00Z",
+    "settled_at": "2026-04-15T02:10:00Z",
+    "gross": {
+      "amount": 32500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "payout",
+    "status": "available",
+    "references": [
+      {
+        "type": "payout",
+        "id": "po_7003"
+      }
+    ],
+    "metadata": {}
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "bt_1601",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-08-04T14:25:00Z",
+    "settled_at": "2026-08-04T14:25:00Z",
+    "gross": {
+      "amount": 7500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "bt_1602",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-08-04T16:30:00Z",
+    "settled_at": "2026-08-04T16:30:00Z",
+    "gross": {
+      "amount": 9900,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_1503"
+      }
+    ],
+    "metadata": {}
+  }
+]

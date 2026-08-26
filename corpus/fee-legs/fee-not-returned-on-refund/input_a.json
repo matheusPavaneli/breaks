@@ -1,0 +1,80 @@
+[
+  {
+    "id": "ch_3001",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-05-05T13:20:00Z",
+    "settled_at": "2026-05-05T13:20:00Z",
+    "gross": {
+      "amount": 20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "fee_3002",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-05-05T13:20:00Z",
+    "settled_at": "2026-05-05T13:20:00Z",
+    "gross": {
+      "amount": -590,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "fee",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_3001"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "rf_3003",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-05-10T09:05:00Z",
+    "settled_at": "2026-05-10T09:05:00Z",
+    "gross": {
+      "amount": -20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": {
+      "amount": 0,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "net": {
+      "amount": -20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fx": null,
+    "category": "refund",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_3001"
+      }
+    ],
+    "metadata": {}
+  }
+]
