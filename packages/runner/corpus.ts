@@ -100,6 +100,18 @@ export async function findCaseDirs(root: string): Promise<string[]> {
   for (let depth = 0; depth < CASE_DEPTH; depth += 1) {
     const nested: string[] = [];
     for (const dir of dirs) {
+      // A case placed above `<category>/<slug>` - straight under the root, or in place of a
+      // slug - is the mirror of one buried below it, and it disappears the same way: the walk
+      // is looking for children here, not for case files, so it would contribute nothing and
+      // say nothing. Refused at every level the walk passes through.
+      if ((await caseFilesPresent(dir)).length > 0) {
+        throw new CaseFileError(
+          dir,
+          'holds case files above <category>/<slug>, where the corpus is not read',
+          [],
+          undefined,
+        );
+      }
       nested.push(...(await directoryNames(dir)).map((name) => join(dir, name)));
     }
     dirs = nested;
@@ -128,9 +140,13 @@ export async function findCaseDirs(root: string): Promise<string[]> {
     }
     if (present.length < CASE_FILES.length) {
       const missing = CASE_FILES.filter((file) => !present.includes(file));
+      const [first, ...rest] = missing;
+      // `file` stays one file name: it is what every consumer keys off, `withCaseId` slices
+      // the message by its length, and a comma-joined list there is not a path. The rest of
+      // the missing files belong in the detail, where a list reads as a list.
       throw new CaseFileError(
-        missing.join(', '),
-        `missing from ${caseIdFromDir(dir)}, which holds ${present.join(', ')}`,
+        first ?? CASE_FILES[0],
+        `is missing from ${caseIdFromDir(dir)}${rest.length > 0 ? `, along with ${rest.join(', ')}` : ''} - it holds ${present.join(', ')}`,
         [],
         undefined,
       );

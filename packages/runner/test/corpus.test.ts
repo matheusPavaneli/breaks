@@ -76,6 +76,8 @@ test('a half-written case fails the corpus instead of quietly disappearing from 
 
     await assert.rejects(findCaseDirs(root), (error: unknown) => {
       assert.ok(error instanceof CaseFileError);
+      // One file name, never a comma-joined list: `withCaseId` slices the message by its
+      // length, and every consumer reads it as a path.
       assert.equal(error.file, 'expected.json');
       assert.match(error.message, /timing\/half-written/);
       return true;
@@ -126,10 +128,11 @@ test('the corpus version is read from VERSION, and a root without a usable one i
 });
 
 test('a root with no case directory is refused instead of scoring an empty run', async () => {
-  const { root, cleanup } = await writeCorpus([['timing/real-case']]);
+  // Categories, and nothing written in them yet. Pointing the runner at a tree like this - or
+  // at the repository root - used to return zero cases and publish a scored run of zero.
+  const { root, cleanup } = await writeCorpus([], ['timing', 'grouping']);
   try {
-    // The shape a wrong path takes: one level too deep, so the two-level walk finds nothing.
-    await assert.rejects(loadCorpus(join(root, 'timing')), (error: unknown) => {
+    await assert.rejects(loadCorpus(root), (error: unknown) => {
       assert.ok(error instanceof CaseFileError);
       assert.match(error.message, /holds no case directory/);
       return true;
@@ -146,6 +149,19 @@ test('a case buried one level too deep is refused, not walked past', async () =>
       assert.ok(error instanceof CaseFileError);
       assert.match(error.message, /below <category>\/<slug>/);
       assert.match(error.file, /buried/);
+      return true;
+    });
+  } finally {
+    await cleanup();
+  }
+});
+
+test('a case placed above <category>/<slug> is refused too', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case'], ['stray-case']]);
+  try {
+    await assert.rejects(findCaseDirs(root), (error: unknown) => {
+      assert.ok(error instanceof CaseFileError);
+      assert.match(error.message, /above <category>\/<slug>/);
       return true;
     });
   } finally {
@@ -201,7 +217,13 @@ test('the version travels with the cases rather than being the caller to remembe
 // case from drifting away from the schema it is supposed to be written against.
 
 test('this corpus declares the version every score of it is stamped with', async () => {
-  assert.equal(await readCorpusVersion(CORPUS_ROOT), '0.1.0');
+  // Deliberately not the literal current version: CHANGELOG.md mandates a minor bump whenever
+  // a case changes, and a hard-coded '0.1.0' here would make the corpus workflow red-fail a
+  // runner test that has nothing to do with corpus content.
+  const version = await readCorpusVersion(CORPUS_ROOT);
+
+  assert.match(version, /^\d+\.\d+\.\d+$/);
+  assert.equal((await loadCorpus(CORPUS_ROOT)).version, version);
 });
 
 test('every case in corpus/ loads and validates', async () => {
