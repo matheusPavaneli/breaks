@@ -1,0 +1,35 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_2102"
+      ],
+      "b": [
+        "bt_2202"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [
+    {
+      "id": "ch_2101",
+      "reason": "category_mismatch"
+    }
+  ],
+  "unmatched_b": [
+    {
+      "id": "bt_2201",
+      "reason": "category_mismatch"
+    }
+  ],
+  "ambiguous": []
+}

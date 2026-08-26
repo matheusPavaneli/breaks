@@ -1,0 +1,47 @@
+[
+  {
+    "id": "bt_2201",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-08-25T14:00:00Z",
+    "settled_at": "2026-08-25T14:00:00Z",
+    "gross": {
+      "amount": 12000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "topup",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "bt_2202",
+    "source": "bank",
+    "source_system": "northbank",
+    "version": 1,
+    "occurred_at": "2026-08-25T19:00:00Z",
+    "settled_at": "2026-08-25T19:00:00Z",
+    "gross": {
+      "amount": 7400,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [
+      {
+        "type": "charge",
+        "id": "ch_2102"
+      }
+    ],
+    "metadata": {}
+  }
+]

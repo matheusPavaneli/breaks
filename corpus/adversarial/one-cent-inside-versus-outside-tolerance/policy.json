@@ -1,0 +1,14 @@
+{
+  "amount_tolerance": {
+    "absolute_minor_units": 1,
+    "basis_points": 0
+  },
+  "time_window": {
+    "before": "PT0S",
+    "after": "P3D"
+  },
+  "rounding": "half_even",
+  "fx": {
+    "round_after_conversion": true
+  }
+}

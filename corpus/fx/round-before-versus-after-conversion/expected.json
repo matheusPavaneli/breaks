@@ -1,0 +1,43 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_9001"
+      ],
+      "b": [
+        "bt_9101"
+      ],
+      "rule": "fx_converted",
+      "fields_used": [
+        "fx.rate",
+        "fx.presentment",
+        "fx.settlement",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [],
+  "unmatched_b": [
+    {
+      "id": "bt_9102",
+      "reason": "no_counterpart_record"
+    }
+  ],
+  "ambiguous": [
+    {
+      "a": [
+        "ch_9002",
+        "ch_9003"
+      ],
+      "candidates_b": [
+        "bt_9103"
+      ],
+      "reason": "fx_rounding_tie"
+    }
+  ]
+}

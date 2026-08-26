@@ -1,0 +1,62 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_3001"
+      ],
+      "b": [
+        "bt_4001"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    },
+    {
+      "a": [
+        "fee_3002"
+      ],
+      "b": [
+        "bt_4002"
+      ],
+      "rule": "fee_leg",
+      "fields_used": [
+        "category",
+        "gross",
+        "references"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    },
+    {
+      "a": [
+        "rf_3003"
+      ],
+      "b": [
+        "bt_4003"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [],
+  "unmatched_b": [],
+  "ambiguous": []
+}

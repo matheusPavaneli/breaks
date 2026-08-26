@@ -1,0 +1,62 @@
+[
+  {
+    "id": "ch_1701",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-11T09:00:00Z",
+    "settled_at": "2026-08-11T09:00:00Z",
+    "gross": {
+      "amount": 10000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1702",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-11T10:00:00Z",
+    "settled_at": "2026-08-11T10:00:00Z",
+    "gross": {
+      "amount": 20000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  },
+  {
+    "id": "ch_1703",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-11T11:00:00Z",
+    "settled_at": "2026-08-11T11:00:00Z",
+    "gross": {
+      "amount": 30000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

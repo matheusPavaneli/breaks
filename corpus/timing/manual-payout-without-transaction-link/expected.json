@@ -1,0 +1,37 @@
+{
+  "matches": [
+    {
+      "a": [
+        "po_7003"
+      ],
+      "b": [
+        "bt_8003"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [],
+  "unmatched_b": [],
+  "ambiguous": [
+    {
+      "a": [
+        "po_7001",
+        "po_7002"
+      ],
+      "candidates_b": [
+        "bt_8001",
+        "bt_8002"
+      ],
+      "reason": "payout_without_transaction_link"
+    }
+  ]
+}

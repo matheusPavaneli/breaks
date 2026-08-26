@@ -1,0 +1,33 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_1101",
+        "ch_1102",
+        "ch_1103"
+      ],
+      "b": [
+        "bt_1201"
+      ],
+      "rule": "group_sum",
+      "fields_used": [
+        "net",
+        "gross",
+        "settled_at"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [
+    {
+      "id": "ch_1104",
+      "reason": "not_yet_settled"
+    }
+  ],
+  "unmatched_b": [],
+  "ambiguous": []
+}

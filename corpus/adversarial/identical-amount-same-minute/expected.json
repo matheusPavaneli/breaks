@@ -1,0 +1,36 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_1503"
+      ],
+      "b": [
+        "bt_1602"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [],
+  "unmatched_b": [],
+  "ambiguous": [
+    {
+      "a": [
+        "ch_1501",
+        "ch_1502"
+      ],
+      "candidates_b": [
+        "bt_1601"
+      ],
+      "reason": "identical_amount_same_minute"
+    }
+  ]
+}

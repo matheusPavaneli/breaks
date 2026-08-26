@@ -1,0 +1,66 @@
+[
+  {
+    "id": "ch_1501",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-04T14:22:10Z",
+    "settled_at": "2026-08-04T14:22:10Z",
+    "gross": {
+      "amount": 7500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {
+      "product_ref": "sku_44"
+    }
+  },
+  {
+    "id": "ch_1502",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-04T14:22:41Z",
+    "settled_at": "2026-08-04T14:22:41Z",
+    "gross": {
+      "amount": 7500,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {
+      "product_ref": "sku_44"
+    }
+  },
+  {
+    "id": "ch_1503",
+    "source": "psp",
+    "source_system": "acme_psp",
+    "version": 1,
+    "occurred_at": "2026-08-04T16:00:00Z",
+    "settled_at": "2026-08-04T16:00:00Z",
+    "gross": {
+      "amount": 9900,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "fee": null,
+    "net": null,
+    "fx": null,
+    "category": "charge",
+    "status": "available",
+    "references": [],
+    "metadata": {}
+  }
+]

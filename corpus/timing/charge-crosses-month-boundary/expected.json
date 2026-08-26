@@ -1,0 +1,51 @@
+{
+  "matches": [
+    {
+      "a": [
+        "ch_1001"
+      ],
+      "b": [
+        "bt_2001"
+      ],
+      "rule": "reference",
+      "fields_used": [
+        "references",
+        "net",
+        "gross"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    },
+    {
+      "a": [
+        "ch_1003"
+      ],
+      "b": [
+        "bt_2002"
+      ],
+      "rule": "amount_and_window",
+      "fields_used": [
+        "net",
+        "gross",
+        "settled_at",
+        "occurred_at"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [
+    {
+      "id": "ch_1002",
+      "reason": "not_yet_settled"
+    }
+  ],
+  "unmatched_b": [],
+  "ambiguous": []
+}

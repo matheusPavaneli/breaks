@@ -1,0 +1,31 @@
+{
+  "matches": [
+    {
+      "a": [
+        "po_1301"
+      ],
+      "b": [
+        "bt_1401",
+        "bt_1402"
+      ],
+      "rule": "split_sum",
+      "fields_used": [
+        "gross",
+        "occurred_at"
+      ],
+      "residual": {
+        "amount": 0,
+        "currency": "USD",
+        "exponent": 2
+      }
+    }
+  ],
+  "unmatched_a": [],
+  "unmatched_b": [
+    {
+      "id": "bt_1403",
+      "reason": "no_counterpart_record"
+    }
+  ],
+  "ambiguous": []
+}
