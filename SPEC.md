@@ -139,7 +139,7 @@ type SettlementRecord = {
   settled_at: string | null     // available_on / data de crédito
   gross: Money                  // sinal explícito: crédito +, débito -
   fee: Money | null             // perna de taxa, sempre separada de gross
-  net: Money | null             // gross + fee quando a fonte informa. nunca inferido
+  net: Money | null             // gross - fee quando a fonte informa. nunca inferido
   fx: { rate: FxRate; presentment: Money; settlement: Money } | null
   category:
     | "charge" | "refund" | "dispute" | "dispute_reversal" | "fee"
@@ -165,6 +165,14 @@ Mudanças versus o rascunho, e por quê:
   lugar onde o fuso *exista* para poder estar errado.
 - `gross` / `fee` / `net` separados: a categoria B inteira depende de perna de taxa nunca
   estar embutida no valor.
+- **Sinal de `fee`, que é onde dá para errar.** `gross` é assinado — crédito positivo, débito
+  negativo. O campo `fee` **não** é: ele é a magnitude que a fonte deduziu daquele registro, e
+  o líquido é `gross - fee`. Uma venda de 12500 com taxa de 395 reporta `fee: 395` e
+  `net: 12105`. Um reembolso de −20000 que não devolve taxa reporta `fee: 0` e `net: -20000`.
+  Já uma taxa **avulsa** — sem perna bruta própria, como a taxa de disputa — é um registro
+  inteiro cuja saída de dinheiro vai em `gross`, negativa, e aí `fee` fica `null`. As duas
+  coisas são "uma taxa" e moram em campos diferentes de propósito: uma é dedução de outro
+  evento, a outra é o evento.
 - `status` novo: payout falhado e reemitido (A6) e disputa revertida precisam disso.
 - Nome do tipo é `SettlementRecord`, não `Record` — `Record` é utilitário do TypeScript.
 

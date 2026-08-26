@@ -18,7 +18,8 @@ async function writeCorpus(
   for (const [id, overrides] of cases) {
     const dir = join(root, ...id.split('/'));
     await mkdir(dir, { recursive: true });
-    for (const [name, contents] of Object.entries({ ...caseFiles(), ...overrides })) {
+    const files = { ...caseFiles(), 'README.md': '# fixture case\n', ...overrides };
+    for (const [name, contents] of Object.entries(files)) {
       await writeFile(join(dir, name), contents, 'utf8');
     }
   }
@@ -80,6 +81,22 @@ test('a half-written case fails the corpus instead of quietly disappearing from 
       // length, and every consumer reads it as a path.
       assert.equal(error.file, 'expected.json');
       assert.match(error.message, /timing\/half-written/);
+      return true;
+    });
+  } finally {
+    await cleanup();
+  }
+});
+
+test('a case with no README is refused: without the narrative there is no case', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case'], ['timing/no-narrative']]);
+  try {
+    await rm(join(root, 'timing', 'no-narrative', 'README.md'));
+
+    await assert.rejects(findCaseDirs(root), (error: unknown) => {
+      assert.ok(error instanceof CaseFileError);
+      assert.equal(error.file, 'README.md');
+      assert.match(error.message, /timing\/no-narrative/);
       return true;
     });
   } finally {
@@ -182,7 +199,8 @@ test('a case reached through a symlinked directory is part of the corpus', async
   const elsewhere = await mkdtemp(join(tmpdir(), 'breaks-linked-'));
   try {
     await mkdir(join(elsewhere, 'linked-case'), { recursive: true });
-    for (const [name, contents] of Object.entries(caseFiles())) {
+    const files = { ...caseFiles(), 'README.md': '# linked case\n' };
+    for (const [name, contents] of Object.entries(files)) {
       await writeFile(join(elsewhere, 'linked-case', name), contents, 'utf8');
     }
     // 'junction' on Windows, where a directory symlink otherwise needs elevation.

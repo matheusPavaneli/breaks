@@ -59,10 +59,17 @@ async function directoryNames(dir: string): Promise<string[]> {
   return names;
 }
 
-type CaseFile = (typeof CASE_FILES)[number];
+// The four files `loadCase` parses, plus the narrative. CLAUDE.md: "se a narrativa não
+// explica por que aquele é o resultado certo, o caso não existe" - and `.gitignore` already
+// allowlists README.md as one of the five files that define a case. It is not parsed, so it
+// stays out of `CASE_FILES`, but a case whose README was deleted or misspelled is not a case
+// that should load clean.
+const REQUIRED_FILES = [...CASE_FILES, 'README.md'] as const;
+
+type CaseFile = (typeof REQUIRED_FILES)[number];
 
 /**
- * Which of the four case files this directory holds.
+ * Which of the five case files this directory holds.
  *
  * Only ENOENT and ENOTDIR mean "not there". Every other errno - EACCES on a locked
  * directory, EIO on a failing disk - is a case this machine cannot read, not a case that
@@ -75,12 +82,14 @@ async function caseFilesPresent(dir: string): Promise<CaseFile[]> {
   // Sequential, for the reason `loadCase` gives for reading its four files in order: with two
   // unreadable files, four rejections racing each other would make which one is reported
   // depend on disk timing, and a corpus defect has to look the same on every machine.
-  for (const file of CASE_FILES) {
+  for (const file of REQUIRED_FILES) {
     try {
       if ((await stat(join(dir, file))).isFile()) found.push(file);
     } catch (cause) {
       if (ABSENT.has(errnoOf(cause) ?? '')) continue;
-      throw new CaseFileError(file, `cannot be read in ${caseIdFromDir(dir)}`, [], cause);
+      // The directory, not a case id: this runs on the root and on category directories too,
+      // where `caseIdFromDir` would name a case that does not exist.
+      throw new CaseFileError(file, `cannot be read in ${dir}`, [], cause);
     }
   }
   return found;
@@ -89,7 +98,7 @@ async function caseFilesPresent(dir: string): Promise<CaseFile[]> {
 /**
  * Every case directory under a corpus root, as `<category>/<slug>` paths.
  *
- * A directory with none of the four case files is skipped: an empty category is a category
+ * A directory with none of the five case files is skipped: an empty category is a category
  * nobody has written cases for yet, not a broken corpus. A directory with *some* of them is
  * refused, because that is the shape a half-written or misspelled case takes - rename
  * `expected.json` and a silent skip would drop the case from the run, shift the per-case mean
@@ -138,14 +147,14 @@ export async function findCaseDirs(root: string): Promise<string[]> {
       }
       continue;
     }
-    if (present.length < CASE_FILES.length) {
-      const missing = CASE_FILES.filter((file) => !present.includes(file));
+    if (present.length < REQUIRED_FILES.length) {
+      const missing = REQUIRED_FILES.filter((file) => !present.includes(file));
       const [first, ...rest] = missing;
       // `file` stays one file name: it is what every consumer keys off, `withCaseId` slices
       // the message by its length, and a comma-joined list there is not a path. The rest of
       // the missing files belong in the detail, where a list reads as a list.
       throw new CaseFileError(
-        first ?? CASE_FILES[0],
+        first ?? REQUIRED_FILES[0],
         `is missing from ${caseIdFromDir(dir)}${rest.length > 0 ? `, along with ${rest.join(', ')}` : ''} - it holds ${present.join(', ')}`,
         [],
         undefined,
