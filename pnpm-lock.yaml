@@ -17,6 +17,15 @@ importers:
 
   packages/money: {}
 
+  packages/schema:
+    dependencies:
+      '@breaks/money':
+        specifier: workspace:*
+        version: link:../money
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
 packages:
 
   '@types/node@24.13.3':
@@ -30,6 +39,9 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
 snapshots:
 
   '@types/node@24.13.3':
@@ -39,3 +51,5 @@ snapshots:
   typescript@5.9.3: {}
 
   undici-types@7.18.2: {}
+
+  zod@4.4.3: {}
