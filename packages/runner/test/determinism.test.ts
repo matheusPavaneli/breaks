@@ -66,6 +66,20 @@ test('the order the corpus was walked in cannot reach the hash', () => {
   );
 });
 
+test('the corpus version is stamped on the report and reaches the hash', () => {
+  const result = failedResult('timing/a-case', 'timeout', 'no output within 10 ms', 10);
+
+  // Same results, two corpora. Without the stamp these two runs are byte-identical, and a
+  // score measured on twelve cases is indistinguishable from one measured on forty.
+  assert.notEqual(
+    reportHash(buildCorpusReport([result], '0.1.0')),
+    reportHash(buildCorpusReport([result], '0.2.0')),
+  );
+  assert.equal(buildCorpusReport([result], '0.1.0').corpus_version, '0.1.0');
+  // No corpus root to read - a synthetic run - says so rather than inventing a version.
+  assert.equal(buildCorpusReport([result]).corpus_version, null);
+});
+
 test('a duplicate case id is refused rather than ordered by the walk', () => {
   // `caseIdFromDir` keeps only the last two segments, so corpusA/timing/case-1 and
   // corpusB/timing/case-1 collide. Sorting by a shared key leaves those two in input order -
