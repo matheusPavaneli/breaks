@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -25,6 +25,7 @@ async function writeCorpus(
   for (const path of extras) {
     await mkdir(join(root, ...path.split('/')), { recursive: true });
   }
+  await writeFile(join(root, 'VERSION'), '9.9.9\n', 'utf8');
 
   return { root, cleanup: () => rm(root, { recursive: true, force: true }) };
 }
@@ -37,7 +38,7 @@ test('cases come back ordered by case id, not in the order the filesystem lists 
     ['fx/mike'],
   ]);
   try {
-    const loaded = await loadCorpus(root);
+    const loaded = (await loadCorpus(root)).cases;
 
     assert.deepEqual(
       loaded.map((corpusCase) => corpusCase.case_id),
@@ -107,6 +108,7 @@ test('a malformed case fails the load, naming the case and the file inside it', 
 test('the corpus version is read from VERSION, and a root without a usable one is refused', async () => {
   const { root, cleanup } = await writeCorpus([['timing/real-case']]);
   try {
+    await rm(join(root, 'VERSION'));
     await assert.rejects(readCorpusVersion(root), (error: unknown) => {
       assert.ok(error instanceof CaseFileError);
       assert.equal(error.file, 'VERSION');
@@ -123,6 +125,56 @@ test('the corpus version is read from VERSION, and a root without a usable one i
   }
 });
 
+test('a root with no case directory is refused instead of scoring an empty run', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case']]);
+  try {
+    // The shape a wrong path takes: one level too deep, so the two-level walk finds nothing.
+    await assert.rejects(loadCorpus(join(root, 'timing')), (error: unknown) => {
+      assert.ok(error instanceof CaseFileError);
+      assert.match(error.message, /holds no case directory/);
+      return true;
+    });
+  } finally {
+    await cleanup();
+  }
+});
+
+test('a case reached through a symlinked directory is part of the corpus', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case']]);
+  const elsewhere = await mkdtemp(join(tmpdir(), 'breaks-linked-'));
+  try {
+    await mkdir(join(elsewhere, 'linked-case'), { recursive: true });
+    for (const [name, contents] of Object.entries(caseFiles())) {
+      await writeFile(join(elsewhere, 'linked-case', name), contents, 'utf8');
+    }
+    // 'junction' on Windows, where a directory symlink otherwise needs elevation.
+    await symlink(
+      join(elsewhere, 'linked-case'),
+      join(root, 'timing', 'linked-case'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+
+    const loaded = (await loadCorpus(root)).cases;
+
+    assert.deepEqual(
+      loaded.map((corpusCase) => corpusCase.case_id),
+      ['timing/linked-case', 'timing/real-case'],
+    );
+  } finally {
+    await cleanup();
+    await rm(elsewhere, { recursive: true, force: true });
+  }
+});
+
+test('the version travels with the cases rather than being the caller to remember', async () => {
+  const { root, cleanup } = await writeCorpus([['timing/real-case']]);
+  try {
+    assert.equal((await loadCorpus(root)).version, '9.9.9');
+  } finally {
+    await cleanup();
+  }
+});
+
 // The corpus of this repository, not a fixture. This is the test that stops a hand-written
 // case from drifting away from the schema it is supposed to be written against.
 
@@ -131,7 +183,7 @@ test('this corpus declares the version every score of it is stamped with', async
 });
 
 test('every case in corpus/ loads and validates', async () => {
-  const loaded = await loadCorpus(CORPUS_ROOT);
+  const loaded = (await loadCorpus(CORPUS_ROOT)).cases;
 
   assert.equal(loaded.length, 12);
   assert.deepEqual(
@@ -160,7 +212,7 @@ test('every case in corpus/ loads and validates', async () => {
 // stated. CLAUDE.md puts the full pass in `breaks verify`; until that slice exists, the
 // corpus does not ship without it.
 test('every record in every case gets exactly one verdict', async () => {
-  const loaded = await loadCorpus(CORPUS_ROOT);
+  const loaded = (await loadCorpus(CORPUS_ROOT)).cases;
 
   for (const corpusCase of loaded) {
     const sides = [
@@ -200,7 +252,7 @@ test('every record in every case gets exactly one verdict', async () => {
 });
 
 test('the corpus exercises every match rule and abstains in at least four cases', async () => {
-  const loaded = await loadCorpus(CORPUS_ROOT);
+  const loaded = (await loadCorpus(CORPUS_ROOT)).cases;
 
   const rules = new Set(
     loaded.flatMap((corpusCase) => corpusCase.expected.matches.map((match) => match.rule)),
@@ -230,7 +282,11 @@ test('the corpus exercises every match rule and abstains in at least four cases'
 // BigInt because the fx numerator is a product of three integers and this is the one place in
 // the tests where the corpus's own arithmetic is redone rather than trusted.
 function roundHalf(n: bigint, d: bigint, mode: 'even' | 'up'): bigint {
-  const quotient = n / d;
+  // Floor division, not BigInt's truncation toward zero: with a negative numerator - the
+  // first refund or dispute with an fx leg - truncation leaves a negative remainder, every
+  // comparison below reads as "round down", and this helper would quietly stop distinguishing
+  // the two modes at all.
+  const quotient = n / d - (n % d !== 0n && n < 0n !== d < 0n ? 1n : 0n);
   const twice = (n - quotient * d) * 2n;
   if (twice < d) return quotient;
   if (twice > d) return quotient + 1n;
@@ -246,7 +302,7 @@ function tenTo(exponent: number): bigint {
 // that hard-codes the rule it happens to know - both score a perfect run, and the field the
 // policy declares is decorative.
 test('at least one case separates half_even from half-up', async () => {
-  const loaded = await loadCorpus(CORPUS_ROOT);
+  const loaded = (await loadCorpus(CORPUS_ROOT)).cases;
 
   const divergent = loaded.flatMap((corpusCase) =>
     [...corpusCase.records_a, ...corpusCase.records_b]
@@ -269,7 +325,7 @@ test('at least one case separates half_even from half-up', async () => {
 });
 
 test('every match carries money as its residual, in a currency the case uses', async () => {
-  const loaded = await loadCorpus(CORPUS_ROOT);
+  const loaded = (await loadCorpus(CORPUS_ROOT)).cases;
 
   for (const corpusCase of loaded) {
     const currencies = new Set(

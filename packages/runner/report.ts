@@ -58,7 +58,10 @@ export type CorpusReport = {
    * different corpora. It is part of the hashed bytes for the same reason: two runs that read
    * different corpora must not be able to hash the same.
    *
-   * `null` only when the caller had no corpus root to read - a synthetic run, or a test.
+   * The argument is required, `null` included: a default would let a caller that never read
+   * a corpus root publish an unstamped report by omission, which is the failure this field
+   * exists to make impossible. `null` is a deliberate statement that there was no root -
+   * a synthetic run, or a test.
    */
   readonly corpus_version: string | null;
   readonly cases: readonly CaseResult[];
@@ -170,7 +173,7 @@ function addCounters(left: Counters, right: Counters): Counters {
  */
 export function buildCorpusReport(
   results: readonly CaseResult[],
-  corpus_version: string | null = null,
+  corpus_version: string | null,
 ): CorpusReport {
   // Sorting by a key two cases can share would leave their relative order decided by the walk
   // - which is filesystem order - and put it straight into the hash this function exists to

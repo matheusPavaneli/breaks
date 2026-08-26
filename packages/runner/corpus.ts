@@ -24,9 +24,31 @@ function errnoOf(error: unknown): string | undefined {
   return typeof code === 'string' ? code : undefined;
 }
 
+// `isDirectory()` is false for a symlink that points at a directory - a Dirent reports the
+// link, not its target - while `caseFilesPresent` below stats, which follows it. Taking the
+// Dirent's word for it would drop a symlinked category or case from the corpus with no error,
+// which is the one thing this file refuses to do anywhere else.
+async function isDirectory(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch (cause) {
+    if (ABSENT.has(errnoOf(cause) ?? '')) return false;
+    throw new CaseFileError(path, 'cannot be read while walking the corpus', [], cause);
+  }
+}
+
 async function directoryNames(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
-  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const names: string[] = [];
+  // Sequential, and in the order readdir returned: the walk has to report the same defect
+  // every time it runs, and a `Promise.all` here would let disk timing pick which of two
+  // broken entries raises first.
+  for (const entry of entries.toSorted((left, right) => (left.name < right.name ? -1 : 1))) {
+    if (entry.isDirectory() || (entry.isSymbolicLink() && (await isDirectory(join(dir, entry.name))))) {
+      names.push(entry.name);
+    }
+  }
+  return names;
 }
 
 type CaseFile = (typeof CASE_FILES)[number];
@@ -41,18 +63,19 @@ type CaseFile = (typeof CASE_FILES)[number];
  * an error moves every number on the leaderboard.
  */
 async function caseFilesPresent(dir: string): Promise<CaseFile[]> {
-  const found = await Promise.all(
-    CASE_FILES.map(async (file) => {
-      try {
-        const stats = await stat(join(dir, file));
-        return stats.isFile() ? file : undefined;
-      } catch (cause) {
-        if (ABSENT.has(errnoOf(cause) ?? '')) return undefined;
-        throw new CaseFileError(file, `cannot be read in ${caseIdFromDir(dir)}`, [], cause);
-      }
-    }),
-  );
-  return found.filter((file): file is CaseFile => file !== undefined);
+  const found: CaseFile[] = [];
+  // Sequential, for the reason `loadCase` gives for reading its four files in order: with two
+  // unreadable files, four rejections racing each other would make which one is reported
+  // depend on disk timing, and a corpus defect has to look the same on every machine.
+  for (const file of CASE_FILES) {
+    try {
+      if ((await stat(join(dir, file))).isFile()) found.push(file);
+    } catch (cause) {
+      if (ABSENT.has(errnoOf(cause) ?? '')) continue;
+      throw new CaseFileError(file, `cannot be read in ${caseIdFromDir(dir)}`, [], cause);
+    }
+  }
+  return found;
 }
 
 /**
@@ -67,29 +90,27 @@ async function caseFilesPresent(dir: string): Promise<CaseFile[]> {
 export async function findCaseDirs(root: string): Promise<string[]> {
   let dirs: string[] = [root];
   for (let depth = 0; depth < CASE_DEPTH; depth += 1) {
-    const nested = await Promise.all(
-      dirs.map(async (dir) => (await directoryNames(dir)).map((name) => join(dir, name))),
-    );
-    dirs = nested.flat();
+    const nested: string[] = [];
+    for (const dir of dirs) {
+      nested.push(...(await directoryNames(dir)).map((name) => join(dir, name)));
+    }
+    dirs = nested;
   }
 
-  const candidates = await Promise.all(
-    dirs.map(async (dir) => ({ dir, present: await caseFilesPresent(dir) })),
-  );
-
   const cases: string[] = [];
-  for (const candidate of candidates) {
-    if (candidate.present.length === 0) continue;
-    if (candidate.present.length < CASE_FILES.length) {
-      const missing = CASE_FILES.filter((file) => !candidate.present.includes(file));
+  for (const dir of dirs) {
+    const present = await caseFilesPresent(dir);
+    if (present.length === 0) continue;
+    if (present.length < CASE_FILES.length) {
+      const missing = CASE_FILES.filter((file) => !present.includes(file));
       throw new CaseFileError(
         missing.join(', '),
-        `missing from ${caseIdFromDir(candidate.dir)}, which holds ${candidate.present.join(', ')}`,
+        `missing from ${caseIdFromDir(dir)}, which holds ${present.join(', ')}`,
         [],
         undefined,
       );
     }
-    cases.push(candidate.dir);
+    cases.push(dir);
   }
 
   // Sorted by case id, not by the order the filesystem hands the entries back. readdir makes
@@ -137,15 +158,46 @@ export async function readCorpusVersion(root: string): Promise<string> {
   return version;
 }
 
+export type Corpus = {
+  /** From `VERSION` at the root. Every score measured on these cases is stamped with it. */
+  readonly version: string;
+  readonly cases: readonly CorpusCase[];
+};
+
 /**
- * Load and validate every case under a corpus root, ordered by case id.
+ * Load and validate a corpus root: its version, and every case under it, ordered by case id.
+ *
+ * The version travels with the cases rather than being an argument the caller may forget -
+ * a report that cannot say which corpus produced it is a number nobody can place next to a
+ * later one.
+ *
+ * An empty root is refused. `findCaseDirs` only looks at `<category>/<slug>`, so a runner
+ * pointed at the repository root, or one directory too deep into `corpus/`, finds nothing;
+ * returning zero cases would let `buildCorpusReport` publish a scored run of zero cases at
+ * `settlement_score: 0`, which reads as an implementation that failed everything rather than
+ * as a path that was wrong.
  *
  * Sequential for the same reason `loadCase` reads its four files in order: the first broken
  * case is the one worth reporting, and parallel loads make which one that is depend on disk
  * timing.
  */
-export async function loadCorpus(root: string): Promise<CorpusCase[]> {
+export async function loadCorpus(root: string): Promise<Corpus> {
+  // Case directories first, then the version: a root with neither is far more likely to be a
+  // wrong path than a corpus that forgot its VERSION file, and "holds no case directory" is
+  // the diagnosis that sends the reader to look at the path they typed.
   const dirs = await findCaseDirs(root);
+
+  if (dirs.length === 0) {
+    throw new CaseFileError(
+      root,
+      'holds no case directory - a corpus root contains <category>/<slug> directories',
+      [],
+      undefined,
+    );
+  }
+
+  const version = await readCorpusVersion(root);
+
   const cases: CorpusCase[] = [];
   for (const dir of dirs) {
     try {
@@ -154,5 +206,5 @@ export async function loadCorpus(root: string): Promise<CorpusCase[]> {
       throw withCaseId(caseIdFromDir(dir), error);
     }
   }
-  return cases;
+  return { version, cases };
 }
